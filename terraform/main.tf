@@ -1,16 +1,16 @@
 terraform {
   cloud {
-    organization = "<PULL FROM HCP>"
+    organization = "blackbelt_init"
 
     workspaces {
-      name = "<CHOOSE WORKSPACE NAME>"
+      name = "SSG-S3"
     }
   }
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "<PULL FROM REGISTRY>"
+      version = "5.58.0"
     }
   }
 
