@@ -3,7 +3,7 @@ on:
     branches: ["main"]
 permissions:
   pull-requests: write
-name: 🌱 Apply, Build, Deploy
+name: 🌱 Plan, Build 🧪
 jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
