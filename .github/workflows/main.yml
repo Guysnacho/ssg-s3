@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       tf_actions_working_dir: "terraform"
-    defaults:
     steps:
       - name: Check Out
         uses: actions/checkout@v4
