@@ -16,7 +16,8 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_version: 1.9.2
-      - run: |
+      - name: Look around nd Init 👁️👁️
+        run: |
           echo Looking around 👁️👁️
           ls
           cd terraform
@@ -37,14 +38,10 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: ["TF-Apply"]
-    defaults:
-      run:
-        working-directory: "ssg-s3/web"
     steps:
       - name: Use Node.js
         uses: actions/setup-node@v4
-        with:
-          cache: "npm"
+
       - name: 🔨 Build Project
         run: |
           npm install
