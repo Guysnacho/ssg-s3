@@ -4,7 +4,7 @@ on:
       - "**"
 permissions:
   pull-requests: write
-name: 🌱 Apply, Build, Deploy
+name: 🌱 Plan, Build 🧪
 jobs:
   TF-Apply:
     name: 🏗️ Plan Infra
@@ -18,8 +18,13 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_version: 1.9.2
           terraform_wrapper: false
-      - run: cd terraform
-      - run: terraform init
+      - run: |
+          echo Looking around 👁️👁️
+          ls
+          cd terraform
+          echo Looking around 👁️👁️
+          ls
+          terraform init
       - name: 🏗️ Terraform Plan
         run: terraform plan -no-color
       # - run: echo ${{ steps.plan.outputs.stdout }}
