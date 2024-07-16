@@ -3,7 +3,7 @@ on:
     branches: ["main"]
 permissions:
   pull-requests: write
-name: 🌱 Apply, Build, Deploy
+name: 🌱 Apply, Build, Deploy 🌿
 jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
@@ -25,7 +25,8 @@ jobs:
           terraform init
       - name: 🏗️ Terraform Apply
         run: |
-          terraform apply -no-color
+          cd terraform
+          terraform apply
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
@@ -38,10 +39,8 @@ jobs:
     needs: ["TF-Apply"]
     defaults:
       run:
-        working-directory: "web"
+        working-directory: "ssg-s3/web"
     steps:
-      - name: Check Out
-        uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
