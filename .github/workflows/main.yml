@@ -8,6 +8,8 @@ jobs:
   TF-SignIn:
     name: Terraform Sign-in 🗝️
     runs-on: ubuntu-latest
+    env:
+      tf_actions_working_dir: "terraform"
     defaults:
       run:
         working-directory: ${{ env.tf_actions_working_dir }}
