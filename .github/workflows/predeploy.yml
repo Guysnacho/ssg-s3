@@ -58,6 +58,6 @@ jobs:
       - name: 🚀 Upload Package
         uses: reggionick/s3-deploy@v4
         with:
-          folder: out
+          folder: "web/out"
           bucket: ${{ secrets.S3_BUCKET }}
           bucket-region: us-west-2
