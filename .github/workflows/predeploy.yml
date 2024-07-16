@@ -39,17 +39,23 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: ["TF-Apply"]
-    defaults:
-      run:
-        working-directory: web
     steps:
       - name: Use Node.js
         uses: actions/setup-node@v4
 
+      - name: Look around 👁️👁️
+        run: |
+          echo Looking around 👁️👁️
+          ls
+          echo Looking around 👁️👁️
+          ls .\web
+
       - name: 😪 Installing Dependencies
         run: |
+          cd web
           npm install
 
       - name: 🔨 Build Project
         run: |
+          cd web
           npm run build
