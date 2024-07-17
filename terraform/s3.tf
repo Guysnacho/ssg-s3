@@ -3,5 +3,8 @@ module "s3-bucket" {
   version = "4.1.2"
   bucket  = "black-belt-init-ssg-s3"
 
-  force_destroy = true
+
+  block_public_acls       = true
+  restrict_public_buckets = false
+  force_destroy           = true
 }
