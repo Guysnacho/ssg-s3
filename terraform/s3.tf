@@ -20,6 +20,7 @@ module "s3-bucket" {
       }
     ]
   })
+  block_public_acls       = false
   attach_public_policy    = true
   restrict_public_buckets = false
   object_ownership        = "BucketOwnerPreferred"
