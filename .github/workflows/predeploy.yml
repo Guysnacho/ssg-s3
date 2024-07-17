@@ -2,6 +2,8 @@ on:
   pull_request:
     branches:
       - "**"
+  push:
+    branches: "**"
 permissions:
   pull-requests: write
 name: 🌱 Plan, Build 🧪
