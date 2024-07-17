@@ -10,7 +10,7 @@ name: 🌱 Plan, Build 🧪
 jobs:
   TF-Apply:
     name: 🏗️ Plan Infra
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
       - name: 🏗️ Terraform Plan
         run: |
           cd terraform
-          terraform apply -var="bucket-name=${{ secrets.S3_BUCKET }}"
+          terraform plan -var="bucket-name=${{ secrets.S3_BUCKET }}"
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
@@ -62,6 +62,3 @@ jobs:
         run: |
           cd web
           npm run build
-
-      - name: 🚀 Upload Package
-        run: aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2

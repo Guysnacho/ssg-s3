@@ -7,7 +7,7 @@ name: 🌱 Apply, Build, Deploy 🌿
 jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out
         uses: actions/checkout@v4
