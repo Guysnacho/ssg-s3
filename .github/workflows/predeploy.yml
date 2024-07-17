@@ -28,7 +28,7 @@ jobs:
       - name: 🏗️ Terraform Plan
         run: |
           cd terraform
-          terraform plan
+          terraform plan -var="bucket-name=${{ secrets.S3_BUCKET }}"
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
@@ -44,6 +44,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: us-west-2
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: 😪 Installing Dependencies
         run: |
