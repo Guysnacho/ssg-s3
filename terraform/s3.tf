@@ -10,18 +10,6 @@ module "s3-bucket" {
         "Version" : "2012-10-17",
         "Statement" : [
           {
-            "Sid" : "denyUnencryptedObjectUploads",
-            "Effect" : "Deny",
-            "Principal" : "*",
-            "Action" : "s3:PutObject",
-            "Resource" : "arn:aws:s3:::${var.bucket-name}/*",
-            "Condition" : {
-              "Null" : {
-                "s3:x-amz-server-side-encryption" : "true"
-              }
-            }
-          },
-          {
             "Sid" : "PublicReadGetObject",
             "Effect" : "Allow",
             "Principal" : "*",
