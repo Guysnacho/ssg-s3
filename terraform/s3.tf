@@ -19,7 +19,7 @@ module "s3-bucket" {
       }
     ]
   })
-  block_public_acls        = true
+  block_public_acls        = false
   restrict_public_buckets  = false
   control_object_ownership = false
   force_destroy            = true
