@@ -10,7 +10,7 @@ name: 🌱 Plan, Build 🧪
 jobs:
   TF-Apply:
     name: 🏗️ Plan Infra
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -46,6 +46,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: us-west-2
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: 😪 Installing Dependencies
         run: |
@@ -58,8 +64,4 @@ jobs:
           npm run build
 
       - name: 🚀 Upload Package
-        uses: reggionick/s3-deploy@v4
-        with:
-          folder: "web/out"
-          bucket: ${{ secrets.S3_BUCKET }}
-          bucket-region: us-west-2
+        run: aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2
