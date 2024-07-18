@@ -1,7 +1,8 @@
 # Static Site Generation (SSG) meets AWS S3
 
-This repo is to help me actually build this AWS course. Shouldn't be too hard ✨
-[Project Home](https://blackbelt-init.notion.site/)
+[![🌱 Apply, Build, Deploy 🌿](https://github.com/Guysnacho/ssg-s3/actions/workflows/main.yml/badge.svg)](https://github.com/Guysnacho/ssg-s3/actions/workflows/main.yml)
+
+This repo is to help me actually build this AWS course. ~Shouldn't be too hard~ This has and will continue to be a learning experience. Follow along, check the releases, make a fork, go crazy, but check the [Project Home](https://blackbelt-init.notion.site/) for more details. ✨
 
 ## Initial Plan
 
