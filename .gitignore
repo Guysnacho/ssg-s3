@@ -1,0 +1,93 @@
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Windows system files
+Thumbs.db
+
+# Ignore Node.js modules
+node_modules/
+
+# Ignore log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore build and dependency directories
+dist/
+build/
+out/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore compiled code (Java, C++, etc.)
+*.class
+*.o
+*.so
+
+# Ignore environment and configuration files
+.env
+.env.local
+*.env
+*.env.*
+
+# Ignore IDE/editor-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore OS generated files
+*.swp
+*.bak
+*.tmp
+
+# Ignore coverage reports
+coverage/
+*.lcov
+
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Ignore crash logs
+crash.log
+
+# Ignore Terraform variable files
+*.tfvars
+*.tfvars.json
+
+# Ignore override files (local customizations)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore plan files (created by terraform plan)
+*.tfplan
+
+# Ignore .terraform directory
+.terraform/
+
+# Ignore Terraform lock file (if you use version pinning)
+.terraform.lock.hcl
+
+# Ignore Next.js build output
+.next/
+
+# Ignore Next.js cache
+.next/cache
+
+# Ignore Next.js static files
+out/
+
+# Ignore Next.js environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore Vercel deployment files (if deploying to Vercel)
+.vercel/
