@@ -81,10 +81,8 @@ override.tf.json
 .next/cache
 
 # Ignore Next.js static files
-out/
 
 # Ignore Next.js environment files
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
