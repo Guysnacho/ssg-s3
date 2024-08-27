@@ -61,4 +61,6 @@ jobs:
           npm run build
 
       - name: 🚀 Upload Package
-        run: aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2
+        run: |
+          aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2
+          aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}-failover/ --region us-west-2
