@@ -11,7 +11,7 @@ module "s3_bucket" {
       }
     }
   }
-  acl                = "public-read"
+  # acl                = "public-read"
   attach_policy      = true
   ignore_public_acls = false
   # restrict_public_buckets  = false
