@@ -1,6 +1,6 @@
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "11-impl-cloudfront"]
 permissions:
   pull-requests: write
 name: 🌱 Apply, Build, Deploy 🌿
