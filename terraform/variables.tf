@@ -4,10 +4,3 @@ variable "bucket-name" {
   default     = "bucketName"
   sensitive   = true
 }
-
-variable "organization" {
-  description = "The name of my organization"
-  type        = string
-  default     = "organization"
-  sensitive   = true
-}
