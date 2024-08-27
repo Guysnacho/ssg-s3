@@ -2,15 +2,10 @@ module "cloudfront" {
   source  = "terraform-aws-modules/cloudfront/aws"
   version = "3.4.0"
 
-  comment = "CDN for AWS S3 site."
-  default_root_object = "./index.html"
+  comment             = "CDN for AWS S3 site."
+  default_root_object = "index.html"
   # Helpful if you want to use this distribution as a "test" deployment before deploying to production
   #   staging = true
-
-  # create_origin_access_identity = true
-  # origin_access_identities = {
-  #   s3_bucket = module.s3_bucket.s3_bucket_id
-  # }
 
   create_origin_access_control = true
   # origin_access_control = {
@@ -54,12 +49,22 @@ module "cloudfront" {
       domain_name              = module.s3_bucket.s3_bucket_bucket_regional_domain_name
       origin_access_control    = "s3_oac"                                               # key in `origin_access_control`
       origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id # "E345SXM82MIOSU" # external OAС resource
+      origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      origin_shield = {
+        enabled              = true
+        origin_shield_region = "us-west-2"
+      }
     }
 
     s3_oac2 = { # with origin access control settings (recommended)
       domain_name              = module.failover_s3_bucket.s3_bucket_bucket_regional_domain_name
       origin_access_control    = "s3_oac2"                                              # key in `origin_access_control`
       origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id # "E345SXM82MIOSU" # external OAС resource
+      origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      origin_shield = {
+        enabled              = true
+        origin_shield_region = "us-west-2"
+      }
     }
   }
 
@@ -78,10 +83,6 @@ module "cloudfront" {
     cached_methods         = ["GET", "HEAD"]
 
     use_forwarded_values = true
-
-    # cache_policy_id            = "b2884449-e4de-46a7-ac36-70bc7f1ddd6d"
-    # response_headers_policy_id = "67f7725c-6f97-4210-82d7-5512b31e9d03"
-
   }
 
   http_version    = "http2and3"

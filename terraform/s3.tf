@@ -11,14 +11,13 @@ module "s3_bucket" {
       }
     }
   }
-  # acl                = "public-read"
   attach_policy      = true
   ignore_public_acls = false
   # restrict_public_buckets  = false
-  # control_object_ownership = true
-  # object_ownership         = "BucketOwnerPreferred"
-  block_public_acls = false
-  force_destroy     = true
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+  block_public_acls        = false
+  force_destroy            = true
 }
 
 module "failover_s3_bucket" {
@@ -40,8 +39,8 @@ module "failover_s3_bucket" {
   # restrict_public_buckets  = false
   control_object_ownership = true
   object_ownership         = "ObjectWriter"
-  block_public_acls = false
-  force_destroy     = true
+  block_public_acls        = false
+  force_destroy            = true
 }
 
 data "aws_iam_policy_document" "s3_policy" {
@@ -79,9 +78,3 @@ data "aws_iam_policy_document" "failover_s3_policy" {
     }
   }
 }
-  #       "Sid" : "PublicReadGetObject",
-  #       "Effect" : "Allow",
-  #       "Principal" : "*",
-  #       "Action" : "s3:GetObject",
-  #       "Resource" : "arn:aws:s3:::${var.bucket-name}/*"
-  #     }
