@@ -33,12 +33,11 @@ module "failover_s3_bucket" {
       }
     }
   }
-  acl                = "public-read"
   attach_policy      = true
   ignore_public_acls = false
   # restrict_public_buckets  = false
   control_object_ownership = true
-  object_ownership         = "ObjectWriter"
+  object_ownership         = "BucketOwnerPreferred"
   block_public_acls        = false
   force_destroy            = true
 }
