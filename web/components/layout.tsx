@@ -16,7 +16,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 interface Props {
   children: React.ReactNode;
@@ -46,7 +46,7 @@ const NavLink = ({ label, url }: { url: string; label: string }) => {
   );
 };
 
-export default function Layout({ children }) {
+export default function Layout({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isAuthed, setIsAuthed] = useState(false);
 
