@@ -1,17 +1,9 @@
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
-  Avatar,
   Box,
-  Button,
   Flex,
   HStack,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  Stack,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -70,7 +62,7 @@ export default function Layout({ children }) {
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"center"}>
+          {/* <Flex alignItems={"center"}>
             <Menu>
               <MenuButton
                 as={Button}
@@ -93,10 +85,10 @@ export default function Layout({ children }) {
                 <MenuItem>Link 3</MenuItem>
               </MenuList>
             </Menu>
-          </Flex>
+          </Flex> */}
         </Flex>
 
-        {isOpen ? (
+        {/* {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
@@ -104,10 +96,10 @@ export default function Layout({ children }) {
               ))}
             </Stack>
           </Box>
-        ) : null}
+        ) : null} */}
       </Box>
 
-      <Box>{children}</Box>
+      <div>{children}</div>
     </>
   );
 }
