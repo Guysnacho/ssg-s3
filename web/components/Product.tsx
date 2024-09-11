@@ -1,6 +1,7 @@
 import { ProductProps } from "@/pages";
 import {
   Box,
+  Button,
   Center,
   Heading,
   Image,
@@ -8,8 +9,16 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { Dispatch, SetStateAction } from "react";
 
-export default function Product({ name, price, thumbnail }: ProductProps) {
+export default function Product({
+  name,
+  price,
+  thumbnail,
+  setSelected,
+}: {
+  setSelected: Dispatch<SetStateAction<ProductProps | undefined>>;
+} & ProductProps) {
   return (
     <Center py={12}>
       <Box
@@ -70,6 +79,13 @@ export default function Product({ name, price, thumbnail }: ProductProps) {
           <Text fontWeight={800} fontSize={"xl"}>
             ${price}
           </Text>
+          <Button
+            colorScheme="green"
+            variant="ghost"
+            onClick={() => setSelected({ name, price, thumbnail })}
+          >
+            Purchase
+          </Button>
         </Stack>
       </Box>
     </Center>

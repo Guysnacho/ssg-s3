@@ -1,5 +1,6 @@
 import Product from "@/components/Product";
 import { Inter } from "next/font/google";
+import { useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -8,6 +9,7 @@ export type ProductProps = {
   price: number;
   thumbnail: string;
 };
+
 const productList: ProductProps[] = [
   {
     name: "Bando Stone and The New World",
@@ -30,12 +32,15 @@ const productList: ProductProps[] = [
 ];
 
 export default function Home() {
+  const [selected, setSelected] = useState<ProductProps | undefined>();
   return (
     <div className="container mx-auto">
+      {selected ? <p>Selected Item - {selected.name}</p> : undefined}
       <div className="flex flex-wrap w-4/5 mx-auto justify-evenly gap-5">
         {productList.map((item) => (
           <Product
             key={item.name}
+            setSelected={setSelected}
             name={item.name}
             price={item.price}
             thumbnail={item.thumbnail}
