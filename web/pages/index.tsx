@@ -1,4 +1,15 @@
 import Product from "@/components/Product";
+import { handlePurchase } from "@/util/Orders";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from "@chakra-ui/react";
 import { Inter } from "next/font/google";
 import { useState } from "react";
 
@@ -34,7 +45,7 @@ const productList: ProductProps[] = [
 export default function Home() {
   const [selected, setSelected] = useState<ProductProps | undefined>();
   return (
-    <div className="container mx-auto">
+    <div className={`container mx-auto ${inter.className}`}>
       {selected ? <p>Selected Item - {selected.name}</p> : undefined}
       <div className="flex flex-wrap w-4/5 mx-auto justify-evenly gap-5">
         {productList.map((item) => (
@@ -47,6 +58,35 @@ export default function Home() {
           />
         ))}
       </div>
+      <Modal
+        onClose={() => setSelected(undefined)}
+        isOpen={selected !== undefined}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Oooohhh so you like our goods do you?</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <div>
+              <h4>{selected?.name}</h4>
+              <p>{selected?.price}</p>
+            </div>
+          </ModalBody>
+          <ModalFooter sx={{ gap: 5 }}>
+            <Button onClick={() => setSelected(undefined)}>Cancel</Button>
+            <Button
+              colorScheme="green"
+              onClick={() => {
+                handlePurchase(selected!);
+                setSelected(undefined);
+              }}
+            >
+              Checkout
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
