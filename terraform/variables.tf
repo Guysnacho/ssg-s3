@@ -15,6 +15,13 @@ variable "db-username" {
 variable "db-name" {
   description = "The name of our db"
   type        = string
-  default     = "storefrontDB"
+  default     = "storefront"
+  sensitive   = true
+}
+
+variable "db-password" {
+  description = "The password of our db user"
+  type        = string
+  default     = "top_secret"
   sensitive   = true
 }

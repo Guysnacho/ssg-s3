@@ -16,10 +16,10 @@ output "db-arn" {
   sensitive   = true
 }
 
-output "db-domain" {
-  value       = module.db.db_instance_domain
-  description = "DB domain"
-  sensitive   = true
+output "db-domain-ips" {
+  value       = module.db.db_instance_domain_dns_ips
+  description = "DB domain ips"
+  sensitive   = false
 }
 
 output "db-port" {
@@ -31,7 +31,7 @@ output "db-port" {
 output "db-endpoint" {
   value       = module.db.db_instance_endpoint
   description = "DB endpoint"
-  sensitive   = true
+  sensitive   = false
 }
 
 output "db-username" {
