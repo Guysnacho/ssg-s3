@@ -25,14 +25,18 @@ module "db" {
   create_cloudwatch_log_group     = true
   storage_type                    = "gp2"
 
-  db_subnet_group_name        = module.vpc.database_subnet_group
+  db_subnet_group_name        = aws_db_subnet_group.public_subnets.name
   vpc_security_group_ids      = [module.security_group.security_group_id]
   subnet_ids                  = module.vpc.database_subnets
   db_subnet_group_description = "DB Subnet"
   publicly_accessible         = true
   network_type                = "IPV4"
+  putin_khuylo                = true
 
-  depends_on = [module.vpc]
+
+  depends_on          = [module.vpc]
+  skip_final_snapshot = true
+
   # Databases using Secrets Manager are not currently supported for Blue Green Deployments
   # blue_green_update = {
   #   enabled = true
@@ -45,5 +49,13 @@ module "db" {
   #     apply_method = "pending-reboot"
   #   }
   # ]
-  skip_final_snapshot = true
+}
+
+resource "aws_db_subnet_group" "public_subnets" {
+  name       = "public"
+  subnet_ids = module.vpc.public_subnets
+
+  tags = {
+    Name = "Public"
+  }
 }
