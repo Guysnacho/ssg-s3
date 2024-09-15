@@ -1,6 +1,6 @@
 locals {
-  # vpc_cidr = "10.0.0.0/16"
-  vpc_cidr = "192.0.0.0/16"
+  vpc_cidr = "10.0.0.0/16"
+  # vpc_cidr = "192.0.0.0/16"
   port     = 5432
   azs      = ["us-west-2a", "us-west-2b"]
 }
@@ -17,6 +17,8 @@ module "vpc" {
   private_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 3)]
   database_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 6)]
 
+  enable_dns_hostnames                   = true
+  enable_dns_support                     = true
   create_database_internet_gateway_route = true
 }
 
@@ -30,28 +32,44 @@ module "security_group" {
 
 
   # ingress
+  # {
+  #   action      = "allow"
+  #   from_port   = 5432
+  #   to_port     = 5432
+  #   protocol    = "tcp"
+  #   rule_action = "allow"
+  #   rule_number = 100
+  #   cidr_blocks = module.vpc.vpc_cidr_block
+  # },
   ingress_with_cidr_blocks = [
     {
-      action      = "allow"
-      from_port   = 5432
-      to_port     = 5432
+      from_port   = 0
+      to_port     = 0
       protocol    = "tcp"
-      rule_action = "allow"
       rule_number = 100
       description = "PostgreSQL ingress access from within VPC"
-      cidr_blocks = module.vpc.vpc_cidr_block
-    },
+      cidr_blocks = "0.0.0.0/0"
+    }
   ]
+
+  # {
+  #   action      = "allow"
+  #   from_port   = 5432
+  #   to_port     = 5432
+  #   protocol    = "-1"
+  #   rule_action = "allow"
+  #   rule_number = 100
+  #   description = "PostgreSQL egress access from within VPC"
+  #   cidr_blocks = module.vpc.vpc_cidr_block
+  #   },
   egress_with_cidr_blocks = [
     {
-      action      = "allow"
-      from_port   = 5432
-      to_port     = 5432
-      protocol    = "-1"
-      rule_action = "allow"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "tcp"
       rule_number = 100
       description = "PostgreSQL egress access from within VPC"
-      cidr_blocks = module.vpc.vpc_cidr_block
-    },
+      cidr_blocks = "0.0.0.0/0"
+    }
   ]
 }
