@@ -16,7 +16,8 @@ module "db" {
   db_name = var.db-name
   port    = 5432
   # Uncomment to manually set db auth via pipeline params
-  # username                    = var.db-username
+  username = "storefront_admin"
+  # username = var.db-username
   # password                    = var.db-password
   # manage_master_user_password = false
 
