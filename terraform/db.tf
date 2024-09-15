@@ -13,11 +13,12 @@ module "db" {
   allocated_storage     = 5
   max_allocated_storage = 7
 
-  db_name                     = var.db-name
-  username                    = var.db-username
-  password                    = var.db-password
-  manage_master_user_password = false
-  port                        = 5432
+  db_name = var.db-name
+  port    = 5432
+  # Uncomment to manually set db auth via pipeline params
+  # username                    = var.db-username
+  # password                    = var.db-password
+  # manage_master_user_password = false
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
   create_cloudwatch_log_group     = true
@@ -25,11 +26,12 @@ module "db" {
 
   db_subnet_group_name        = module.vpc.database_subnet_group
   vpc_security_group_ids      = [module.security_group.security_group_id]
-  subnet_ids                  = module.vpc.public_subnets
+  subnet_ids                  = module.vpc.database_subnets
   db_subnet_group_description = "DB Subnet"
   publicly_accessible         = true
   network_type                = "IPV4"
-  depends_on                  = [module.vpc]
+
+  depends_on = [module.vpc]
   # Databases using Secrets Manager are not currently supported for Blue Green Deployments
   # blue_green_update = {
   #   enabled = true

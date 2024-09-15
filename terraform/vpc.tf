@@ -7,7 +7,7 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
 
-  name = "${var.db-username}_vpc"
+  name = "storefront_vpc"
   cidr = local.vpc_cidr
 
   azs              = local.azs

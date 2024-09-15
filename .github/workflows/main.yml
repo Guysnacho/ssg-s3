@@ -27,7 +27,7 @@ jobs:
       - name: 🏗️ Terraform Apply
         run: |
           cd terraform
-          terraform apply -var="bucket-name=${{ secrets.S3_BUCKET }}" -var="db-name=${{ secrets.DB_NAME }}" -var="db-username=${{ secrets.DB_USER }}"  -auto-approve
+          terraform apply -var="bucket-name=${{ secrets.S3_BUCKET }}" -var="db-name=${{ secrets.DB_NAME }}" -auto-approve
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
