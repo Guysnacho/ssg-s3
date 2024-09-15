@@ -13,10 +13,10 @@ module "db" {
   allocated_storage     = 5
   max_allocated_storage = 7
 
-  db_name = var.db-name
-  port    = 5432
-  # Uncomment to manually set db auth via pipeline params
+  db_name  = var.db-name
+  port     = 5432
   username = "storefront_admin"
+  # Uncomment to manually set db auth via pipeline params
   # username = var.db-username
   # password                    = var.db-password
   # manage_master_user_password = false
@@ -25,7 +25,8 @@ module "db" {
   create_cloudwatch_log_group     = true
   storage_type                    = "gp2"
 
-  db_subnet_group_name        = aws_db_subnet_group.public_subnets.name
+  # db_subnet_group_name        = aws_db_subnet_group.public_subnets.name
+  db_subnet_group_name        = module.vpc.database_subnet_group_name
   vpc_security_group_ids      = [module.security_group.security_group_id]
   subnet_ids                  = module.vpc.database_subnets
   db_subnet_group_description = "DB Subnet"

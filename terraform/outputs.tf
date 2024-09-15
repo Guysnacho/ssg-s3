@@ -16,12 +16,6 @@ output "db-arn" {
   sensitive   = true
 }
 
-output "db-domain-ips" {
-  value       = module.db.db_instance_domain_dns_ips
-  description = "DB domain ips"
-  sensitive   = false
-}
-
 output "db-status" {
   value       = module.db.db_instance_status
   description = "DB status"
