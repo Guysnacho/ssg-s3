@@ -13,10 +13,10 @@ module "db" {
   allocated_storage     = 5
   max_allocated_storage = 7
 
-  db_name = var.db-name
-  port    = 5432
-  # Uncomment to manually set db auth via pipeline params
+  db_name  = var.db-name
+  port     = 5432
   username = "storefront_admin"
+  # Uncomment to manually set db auth via pipeline params
   # username = var.db-username
   # password                    = var.db-password
   # manage_master_user_password = false
@@ -25,14 +25,18 @@ module "db" {
   create_cloudwatch_log_group     = true
   storage_type                    = "gp2"
 
-  db_subnet_group_name        = module.vpc.database_subnet_group
+  db_subnet_group_name        = module.vpc.database_subnet_group_name
   vpc_security_group_ids      = [module.security_group.security_group_id]
   subnet_ids                  = module.vpc.database_subnets
   db_subnet_group_description = "DB Subnet"
   publicly_accessible         = true
   network_type                = "IPV4"
+  putin_khuylo                = true
 
-  depends_on = [module.vpc]
+  skip_final_snapshot = true
+  apply_immediately   = true
+  depends_on          = [module.vpc]
+
   # Databases using Secrets Manager are not currently supported for Blue Green Deployments
   # blue_green_update = {
   #   enabled = true
@@ -45,5 +49,43 @@ module "db" {
   #     apply_method = "pending-reboot"
   #   }
   # ]
-  skip_final_snapshot = true
+}
+
+module "security_group" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.2.0"
+
+  name        = "storefront_security_group"
+  description = "Complete PostgreSQL example security group"
+  vpc_id      = module.vpc.vpc_id
+
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "tcp"
+      rule_number = 100
+      description = "PostgreSQL ingress access from within VPC"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = local.port
+      to_port     = local.port
+      protocol    = "-1" # Allow all protocols
+      description = "Allow PostgreSQL access from remote clients"
+      cidr_blocks = "0.0.0.0/0" # Replace with a more specific range if needed
+    }
+  ]
+
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1" # Allow all protocols
+      rule_number = 100
+      description = "PostgreSQL egress access from within VPC"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
 }

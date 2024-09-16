@@ -16,15 +16,21 @@ output "db-arn" {
   sensitive   = true
 }
 
-output "db-domain-ips" {
-  value       = module.db.db_instance_domain_dns_ips
-  description = "DB domain ips"
-  sensitive   = false
+output "db-status" {
+  value       = module.db.db_instance_status
+  description = "DB status"
+  sensitive   = true
 }
 
 output "db-port" {
   value       = module.db.db_instance_port
   description = "DB port"
+  sensitive   = true
+}
+
+output "db-username" {
+  value       = module.db.db_instance_username
+  description = "DB username"
   sensitive   = true
 }
 
@@ -34,14 +40,8 @@ output "db-endpoint" {
   sensitive   = false
 }
 
-output "db-status" {
-  value       = module.db.db_instance_status
-  description = "DB status"
+output "db-address" {
+  value       = module.db.db_instance_address
+  description = "DB address"
   sensitive   = true
 }
-
-# output "db-username" {
-#   value       = module.db.db_instance_username
-#   description = "DB username"
-#   sensitive   = true
-# }
