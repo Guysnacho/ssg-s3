@@ -25,7 +25,6 @@ module "db" {
   create_cloudwatch_log_group     = true
   storage_type                    = "gp2"
 
-  # db_subnet_group_name        = aws_db_subnet_group.public_subnets.name
   db_subnet_group_name        = module.vpc.database_subnet_group_name
   vpc_security_group_ids      = [module.security_group.security_group_id]
   subnet_ids                  = module.vpc.database_subnets
@@ -34,9 +33,9 @@ module "db" {
   network_type                = "IPV4"
   putin_khuylo                = true
 
-
-  depends_on          = [module.vpc]
   skip_final_snapshot = true
+  apply_immediately   = true
+  depends_on          = [module.vpc]
 
   # Databases using Secrets Manager are not currently supported for Blue Green Deployments
   # blue_green_update = {
@@ -52,11 +51,41 @@ module "db" {
   # ]
 }
 
-resource "aws_db_subnet_group" "public_subnets" {
-  name       = "public"
-  subnet_ids = module.vpc.public_subnets
+module "security_group" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.2.0"
 
-  tags = {
-    Name = "Public"
-  }
+  name        = "storefront_security_group"
+  description = "Complete PostgreSQL example security group"
+  vpc_id      = module.vpc.vpc_id
+
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "tcp"
+      rule_number = 100
+      description = "PostgreSQL ingress access from within VPC"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = local.port
+      to_port     = local.port
+      protocol    = "-1" # Allow all protocols
+      description = "Allow PostgreSQL access from remote clients"
+      cidr_blocks = "0.0.0.0/0" # Replace with a more specific range if needed
+    }
+  ]
+
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1" # Allow all protocols
+      rule_number = 100
+      description = "PostgreSQL egress access from within VPC"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
 }
