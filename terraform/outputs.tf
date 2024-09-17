@@ -31,7 +31,7 @@ output "db-username" {
 output "db-endpoint" {
   value       = module.db.cluster_endpoint
   description = "DB cluster endpoint"
-  sensitive   = false
+  sensitive   = true
 }
 
 output "db-name" {
