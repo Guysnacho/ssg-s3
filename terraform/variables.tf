@@ -12,12 +12,12 @@ variable "db-name" {
   sensitive   = true
 }
 
-# variable "db-username" {
-#   description = "The username of our db user"
-#   type        = string
-#   default     = "username"
-#   sensitive   = true
-# }
+variable "db-username" {
+  description = "The username of our db user"
+  type        = string
+  default     = "username"
+  sensitive   = true
+}
 
 # variable "db-password" {
 #   description = "The password of our db user"
