@@ -25,3 +25,10 @@ variable "db-username" {
 #   default     = "top_secret"
 #   sensitive   = true
 # }
+
+variable "cloudfront_secret" {
+  description = "Secret to be included in header and crosschecked in lambdas"
+  type        = string
+  default     = "blaaaahhh"
+  sensitive   = true
+}
