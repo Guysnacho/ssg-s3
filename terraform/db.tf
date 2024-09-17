@@ -76,7 +76,7 @@ module "db" {
   create_cloudwatch_log_group     = true
   storage_type                    = "aurora"
 
-  db_subnet_group_name   = "Public"
+  db_subnet_group_name   = aws_db_subnet_group.public.name
   vpc_security_group_ids = [module.security_group.security_group_id]
   subnets                = module.vpc.public_subnets
 
@@ -140,4 +140,13 @@ module "security_group" {
       cidr_blocks = "0.0.0.0/0"
     }
   ]
+}
+
+resource "aws_db_subnet_group" "public" {
+  name       = "public_db"
+  subnet_ids = module.vpc.public_subnets
+
+  tags = {
+    Name = "Public"
+  }
 }
