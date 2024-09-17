@@ -1,3 +1,4 @@
+// import { Handler } from "aws-lambda";
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
 // const { RDSClient, ListTagsForResourceCommand } = require("@aws-sdk/client-rds");
 const {

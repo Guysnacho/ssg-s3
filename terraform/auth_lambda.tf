@@ -10,10 +10,14 @@ module "auth_lambda" {
   version = "7.9.0"
 
   function_name      = "storefront-auth-lambda"
+  description        = "Lambda for handling user login and signup requests"
   runtime            = "nodejs20.x"
   handler            = "auth.handler"
   publish            = true
   authorization_type = "NONE"
+  timeout            = 10
+  source_path        = "${path.module}/lib/auth.js"
+  architectures      = ["arm64"] # Arm is cheeaaaper
   # lambda_at_edge     = true
 
   # Environmental variables needed to log into database
@@ -38,13 +42,12 @@ module "auth_lambda" {
   }
 
   # use_existing_cloudwatch_log_group = true
-  source_path                        = "${path.module}/lib/auth.js"
-  architectures                      = ["arm64"]                 # Arm is cheeaaaper
-  vpc_subnet_ids                     = module.vpc.public_subnets # Public access through public VPC subnets
-  vpc_security_group_ids             = [module.vpc.default_security_group_id]
+  # VPC got in the way of public access https://repost.aws/questions/QU1WLg4Q2-TCqznkgmpPnW0g/getting-secret-from-lambda-times-out-when-attached-to-vpc-subnet
+  # vpc_subnet_ids                     = module.vpc.public_subnets # Public access through public VPC subnets
+  # vpc_security_group_ids             = [module.security_group.security_group_id]
+  # replacement_security_group_ids     = [module.vpc.default_security_group_id]
   attach_network_policy              = true
   replace_security_groups_on_destroy = true
-  replacement_security_group_ids     = [module.vpc.default_security_group_id]
 
   # Sets up rules for your service role
   assume_role_policy_statements = {
@@ -61,8 +64,11 @@ module "auth_lambda" {
   }
   policy_statements = {
     secret_read = {
-      effect    = "Allow",
-      actions   = ["secretsmanager:GetSecretValue"],
+      effect = "Allow",
+      actions = ["secretsmanager:GetResourcePolicy",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret",
+      "secretsmanager:ListSecretVersionIds"],
       resources = [module.db.cluster_master_user_secret[0].secret_arn]
     }
   }
