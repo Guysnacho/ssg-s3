@@ -8,9 +8,10 @@ module "auth_lambda" {
   version = "7.9.0"
 
   function_name = "storefront-auth-lambda"
-  runtime       = "nodejs20.9"
-  handler       = "index.js"
+  runtime       = "nodejs20.x"
+  handler       = "auth.handler"
+  publish       = true
 
   # use_existing_cloudwatch_log_group = true
-  
+  source_path = "${path.module}/lib/auth.js"
 }
