@@ -23,7 +23,7 @@ module "auth_lambda" {
     db_password = module.db.cluster_master_password
     # found this by running `terraform state show insert_module_here`
     # Replace `insert_module_here` with your specific instance from a `terraform state list`
-    # db_secret = module.db.master_user_secret[0].secret_arn
+    db_secret = module.db.cluster_master_user_secret[0].secret_arn
     secret = var.cloudfront_secret
   }
 
