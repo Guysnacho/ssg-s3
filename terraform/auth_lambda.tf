@@ -62,14 +62,13 @@ module "auth_lambda" {
       }
     }
   }
+
+  attach_policy_statements = true
   policy_statements = {
     secret_read = {
-      effect = "Allow",
-      actions = ["secretsmanager:GetResourcePolicy",
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret",
-      "secretsmanager:ListSecretVersionIds"],
-      resources = [module.db.cluster_master_user_secret[0].secret_arn]
+      effect    = "Allow",
+      actions   = ["secretsmanager:GetSecretValue", "secretsmanager:ListSecrets"],
+      resources = ["*"]
     }
   }
   # allowed_triggers = {
@@ -82,7 +81,7 @@ module "auth_lambda" {
 }
 
 # Allows you to add the lambda to VPC
-resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
-  role       = module.auth_lambda.lambda_role_name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-}
+# resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
+#   role       = module.auth_lambda.lambda_role_name
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+# }

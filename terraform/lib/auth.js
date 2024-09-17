@@ -90,7 +90,8 @@ const handleSignUp = async (payload) => {
   const client = new SecretsManagerClient({ region: process.env.AWS_REGION });
   const listCommand = new ListSecretsCommand({
     region: process.env.AWS_REGION,
-    Filters: ["rds!"],
+    // For some reason plain text filtering isn't working. Need to fix this if we're gonna have multiple secrets
+    // Filters: [{ Key: "name", Values: "rds" }],
   });
 
   const res = await client.send(listCommand);
