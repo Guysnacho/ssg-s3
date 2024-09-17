@@ -8,4 +8,15 @@ const { handler } = require("./auth");
 handler()
   .then((res) => console.log(res))
   .catch((err) => console.error(err))
-  .finally(() => console.log("Finish handler execution"));
+  .finally(() => console.log("Finish empty event test"));
+
+handler({
+  method: "LOGIN",
+  email: "test",
+  password: "test",
+  fname: "test",
+  lname: "test",
+})
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err))
+  .finally(() => console.log("Finish valid request test"));
