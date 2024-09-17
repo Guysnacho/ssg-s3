@@ -50,17 +50,17 @@ module "cloudfront" {
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
 
-    lambda_function_association = {
-      # Valid keys: viewer-request, origin-request, viewer-response, origin-response
-      viewer-request = {
-        lambda_arn   = module.auth_lambda.lambda_function_qualified_arn
-        include_body = true
-      }
+    # lambda_function_association = {
+    #   # Valid keys: viewer-request, origin-request, viewer-response, origin-response
+    #   viewer-request = {
+    #     lambda_arn   = module.sale_lambda.lambda_function_qualified_arn
+    #     include_body = true
+    #   }
 
-      origin-request = {
-        lambda_arn = module.auth_lambda.lambda_function_qualified_arn
-      }
-    }
+    #   origin-request = {
+    #     lambda_arn = module.sale_lambda.lambda_function_qualified_arn
+    #   }
+    # }
 
     use_forwarded_values = true
   }
