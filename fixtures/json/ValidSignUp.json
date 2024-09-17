@@ -1,0 +1,7 @@
+{
+  "method": "SIGNUP",
+  "email": "test",
+  "password": "test",
+  "fname": "test",
+  "lname": "test"
+}

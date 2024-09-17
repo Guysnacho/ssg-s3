@@ -24,7 +24,7 @@ module "auth_lambda" {
     # found this by running `terraform state show insert_module_here`
     # Replace `insert_module_here` with your specific instance from a `terraform state list`
     db_secret = module.db.cluster_master_user_secret[0].secret_arn
-    secret = var.cloudfront_secret
+    secret    = var.cloudfront_secret
   }
 
   # Might not be needed but lets specify open cors anyways
@@ -63,7 +63,7 @@ module "auth_lambda" {
     secret_read = {
       effect    = "Allow",
       actions   = ["secretsmanager:GetSecretValue"],
-      resources = [module.db.cluster_master_user_secret]
+      resources = [module.db.cluster_master_user_secret[0].secret_arn]
     }
   }
   # allowed_triggers = {
