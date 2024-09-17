@@ -1,96 +1,129 @@
-locals {
-  package_url = "https://required_packages_to_run_lambda_code.zip"
-  downloaded  = "downloaded_package_${md5(local.package_url)}.zip"
-}
+// All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
+// const { RDSClient, ListTagsForResourceCommand } = require("@aws-sdk/client-rds");
+const {
+  SecretsManagerClient,
+  ListSecretsCommand,
+  GetSecretValueCommand,
+} = require("@aws-sdk/client-secrets-manager");
+const PackageJson = require("@aws-sdk/client-rds/package.json");
+// const Handler = require("aws-lambda/handler");
 
-data "aws_caller_identity" "current" {}
+/** @type {Handler} */
+exports.handler = async (event, context, callback) => {
+  console.log(`Starting ${context?.functionName} invocation`);
+  console.debug("Payload recieved");
+  console.debug(event);
 
-module "auth_lambda" {
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "7.9.0"
+  const payload = isValidPayload(event);
 
-  function_name = "storefront-auth-lambda"
-  runtime       = "nodejs20.x"
-  handler       = "auth.handler"
-  publish       = true
-  # lambda_at_edge = true
-
-  # Environmental variables needed to log into database
-  environment_variables = {
-    db_host     = module.db.cluster_endpoint
-    db_username = var.db-username
-    db_password = module.db.cluster_master_password
-    db_name     = var.db-name
-    secret      = var.cloudfront_secret
+  // If bad request recieved
+  if (!payload) {
+    return {
+      statusCode: 400,
+      statusDescription: "bad request",
+    };
   }
 
-  # Might not be needed but lets specify open cors anyways
-  cors = {
-    allow_credentials = true
-    allow_origins     = ["*"]
-    allow_methods     = ["*"]
-    allow_headers     = ["date", "keep-alive", "storefront-secret"]
-    expose_headers    = ["keep-alive", "date"]
-    max_age           = 86400
+  if (payload.method == "LOGIN") {
+    return handleLogin(payload.email, payload.password);
+  } else if (payload.method == "SIGNUP") {
+    return await handleSignUp(payload);
+  }
+};
+
+/**
+ *
+ * @param {*} event
+ * @returns {{ method: "LOGIN" | "SIGNUP", email: string, password: string, fname: string, lname: string, } | undefined}
+ */
+const isValidPayload = (event) => {
+  if (
+    event?.method == "SIGNUP" &&
+    event?.email &&
+    event?.email.length > 0 &&
+    event?.password &&
+    event?.password.length > 0 &&
+    event?.fname &&
+    event?.fname.length > 0 &&
+    event?.lname &&
+    event?.lname.length > 0
+  ) {
+    return event;
+  } else if (
+    event?.method == "LOGIN" &&
+    event?.email &&
+    event?.email.length > 0 &&
+    event?.password &&
+    event?.password.length > 0
+  ) {
+    return event;
+  } else return undefined;
+};
+
+/**
+ *
+ * @param email {string}
+ * @param password {string}
+ */
+const handleLogin = (email, password) => {
+  console.log("Handling login");
+
+  return {
+    statusCode: 201,
+    statusDescription: "user created",
+    headers: {
+      "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
+      "client-version": PackageJson.version,
+      location: { value: "https://aws.amazon.com/cloudfront/" },
+    },
+  };
+};
+
+/**
+ *
+ * @param { method: "SIGNUP", email: string, password: string, fname: string, lname: string } payload
+ */
+const handleSignUp = async (payload) => {
+  console.log("Handling sign up");
+
+  const client = new SecretsManagerClient({ region: process.env.AWS_REGION });
+  const listCommand = new ListSecretsCommand({
+    region: process.env.AWS_REGION,
+    Filters: ["rds!"],
+  });
+
+  const res = await client.send(listCommand);
+  if (!res.SecretList || res.SecretList.length == 0)
+    return {
+      statusCode: 500,
+      statusDescription: "database creds not found",
+    };
+
+  const getSecretCommand = new GetSecretValueCommand({
+    SecretId: res.SecretList[0].Name,
+  });
+  const secret = await client.send(getSecretCommand);
+
+  if (!secret || !secret?.SecretString) {
+    return {
+      statusCode: 500,
+      statusDescription: "database creds not found in secret",
+    };
   }
 
-  # use_existing_cloudwatch_log_group = true
-  source_path            = "${path.module}/lib/auth.js"
-  architectures          = ["arm64"]                 # Arm is cheeaaaper
-  vpc_subnet_ids         = module.vpc.public_subnets # Public access through public VPC subnets
-  vpc_security_group_ids = [module.security_group.security_group_id]
+  const creds = JSON.parse(secret.SecretString);
 
-  # Sets up rules for your service role
-  assume_role_policy_statements = {
-    account_root = {
-      effect  = "Allow",
-      actions = ["sts:AssumeRole"],
-      principals = {
-        account_principal = {
-          type        = "AWS",
-          identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-        }
-      }
-    }
-  }
-  allowed_triggers = {
-    // Allows any invoker through the API Gateway
-    APIGatewayAny = {
-      service    = "apigateway"
-      source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*"
-          identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-        }
-      }
-    }
-  }
-  policy_statements = {
-    secret_read = {
-      effect    = "Allow",
-      actions   = ["secretsmanager:GetSecretValue"],
-      resources = [module.db.cluster_master_user_secret]
-    }
-  }
-  # allowed_triggers = {
-  #   // Allows any invoker through the API Gateway
-  #   APIGatewayAny = {
-  #     service    = "apigateway"
-  #     source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*/*/*"
-  #   }
-  # }
-}
+  creds != undefined
+    ? console.log("Successfully fetched DB creds")
+    : console.error("Mission failed, we'll get em next time");
 
-# Allows you to add the lambda to VPC
-resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
-  role       = module.auth_lambda.lambda_role_name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-}
-
-    }
-  }
-}
-
-# Allows you to add the lambda to VPC
-resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
-  role       = module.auth_lambda.lambda_role_name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-}
+  return {
+    statusCode: 201,
+    statusDescription: "user created",
+    headers: {
+      "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
+      "client-version": PackageJson.version,
+      location: { value: "https://aws.amazon.com/cloudfront/" },
+    },
+  };
+};
