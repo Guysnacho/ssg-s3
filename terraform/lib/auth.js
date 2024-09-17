@@ -1,5 +1,10 @@
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
-// import { RDSClient, ListTagsForResourceCommand } from "@aws-sdk/client-rds";
+// const { RDSClient, ListTagsForResourceCommand } = require("@aws-sdk/client-rds");
+const {
+  SecretsManagerClient,
+  ListSecretsCommand,
+  GetSecretValueCommand,
+} = require("@aws-sdk/client-secrets-manager");
 const PackageJson = require("@aws-sdk/client-rds/package.json");
 // const Handler = require("aws-lambda/handler");
 
@@ -22,7 +27,7 @@ exports.handler = async (event, context, callback) => {
   if (payload.method == "LOGIN") {
     return handleLogin(payload.email, payload.password);
   } else if (payload.method == "SIGNUP") {
-    return handleSignUp(payload);
+    return await handleSignUp(payload);
   }
 };
 
@@ -78,8 +83,39 @@ const handleLogin = (email, password) => {
  *
  * @param { method: "SIGNUP", email: string, password: string, fname: string, lname: string } payload
  */
-const handleSignUp = (payload) => {
+const handleSignUp = async (payload) => {
   console.log("Handling sign up");
+
+  const client = new SecretsManagerClient({ region: process.env.AWS_REGION });
+  const listCommand = new ListSecretsCommand({
+    region: process.env.AWS_REGION,
+    Filters: ["rds!"],
+  });
+
+  const res = await client.send(listCommand);
+  if (!res.SecretList || res.SecretList.length == 0)
+    return {
+      statusCode: 500,
+      statusDescription: "database creds not found",
+    };
+
+  const getSecretCommand = new GetSecretValueCommand({
+    SecretId: res.SecretList[0].Name,
+  });
+  const secret = await client.send(getSecretCommand);
+
+  if (!secret || !secret?.SecretString) {
+    return {
+      statusCode: 500,
+      statusDescription: "database creds not found in secret",
+    };
+  }
+
+  const creds = JSON.parse(secret.SecretString);
+
+  creds != undefined
+    ? console.log("Successfully fetched DB creds")
+    : console.error("Mission failed, we'll get em next time");
 
   return {
     statusCode: 201,
