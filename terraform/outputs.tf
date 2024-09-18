@@ -11,31 +11,31 @@ output "s3_bucket-arn" {
 }
 
 output "db-arn" {
-  value       = module.db.cluster_arn
-  description = "DB cluster arn"
+  value       = module.db.db_instance_arn
+  description = "DB arn"
   sensitive   = true
 }
 
 output "db-port" {
-  value       = module.db.cluster_port
-  description = "DB cluster port"
+  value       = module.db.db_instance_port
+  description = "DB port"
   sensitive   = true
 }
 
 output "db-username" {
-  value       = module.db.cluster_master_username
-  description = "DB cluster username"
+  value       = module.db.db_instance_username
+  description = "DB username"
   sensitive   = true
 }
 
 output "db-endpoint" {
-  value       = module.db.cluster_endpoint
-  description = "DB cluster endpoint"
+  value       = module.db.db_instance_endpoint
+  description = "DB endpoint"
   sensitive   = true
 }
 
 output "db-name" {
-  value       = module.db.cluster_database_name
-  description = "DB cluster address"
+  value       = var.db-name
+  description = "DB name"
   sensitive   = true
 }
