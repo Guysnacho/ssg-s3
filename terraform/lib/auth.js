@@ -1,6 +1,7 @@
 // import { Handler } from "aws-lambda";
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
-const { RDSClient } = require("@aws-sdk/client-rds");
+import { PostgrestClient } from "@supabase/postgrest-js";
+
 const {
   SecretsManagerClient,
   ListSecretsCommand,
@@ -95,6 +96,7 @@ const isValidPayload = (event) => {
  *
  * @param email {string}
  * @param password {string}
+ * @param {{username: string, password: string}} creds
  */
 const handleLogin = (email, password, creds) => {
   console.log("Handling login");
@@ -112,19 +114,38 @@ const handleLogin = (email, password, creds) => {
 
 /**
  *
- * @param { method: "SIGNUP", email: string, password: string, fname: string, lname: string } payload
+ * @param {{ method: "SIGNUP", email: string, password: string, fname: string, lname: string }} payload
+ * @param {{username: string, password: string}} creds
  */
 const handleSignUp = async (payload, creds) => {
   console.log("Handling sign up");
 
+  const db = new PostgrestClient(
+    `postgresql://${creds.username}:${creds.password}@${process.env.db_host}:5432/postgres`
+  );
+  const { data, error, statusText } = await db
+    .from("member")
+    .insert({
+      email: payload.email,
+      password: payload.password,
+      fname: payload.fname,
+      lname: payload.lname,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Ran into an issue signing you up");
+    return {
+      statusCode: 500,
+      statusDescription: error.message,
+    };
+  }
+
   return {
     statusCode: 201,
+    id: data.id,
     statusDescription: "user created",
-    headers: {
-      "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
-      "client-version": PackageJson.version,
-      location: { value: "https://aws.amazon.com/cloudfront/" },
-    },
   };
 };
 
