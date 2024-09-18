@@ -1,6 +1,6 @@
 // import { Handler } from "aws-lambda";
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
-// const { RDSClient, ListTagsForResourceCommand } = require("@aws-sdk/client-rds");
+const { RDSClient } = require("@aws-sdk/client-rds");
 const {
   SecretsManagerClient,
   ListSecretsCommand,
@@ -25,10 +25,40 @@ exports.handler = async (event, context, callback) => {
     };
   }
 
+  const secret = await fetchDBSecret();
+
+  if (!secret || !secret?.SecretString) {
+    return {
+      statusCode: 500,
+      statusDescription: "failed to fetch database creds",
+    };
+  }
+
+  /** Database Credentials @type {{username: string, password: string} | undefined} */
+  let creds;
+  try {
+    creds = JSON.parse(secret.SecretString);
+  } catch (error) {
+    console.error(error);
+    return {
+      statusCode: 500,
+      statusDescription: "Failed to fetch db creds",
+    };
+  }
+
+  if (creds == undefined || !creds.password || !creds.username) {
+    console.error("Mission failed, we'll get em next time");
+    return {
+      statusCode: 500,
+      statusDescription: "Invalid db creds",
+    };
+  }
+  console.log("Successfully fetched DB creds ✨");
+
   if (payload.method == "LOGIN") {
-    return handleLogin(payload.email, payload.password);
+    return handleLogin(payload.email, payload.password, creds);
   } else if (payload.method == "SIGNUP") {
-    return await handleSignUp(payload);
+    return await handleSignUp(payload, creds);
   }
 };
 
@@ -66,7 +96,7 @@ const isValidPayload = (event) => {
  * @param email {string}
  * @param password {string}
  */
-const handleLogin = (email, password) => {
+const handleLogin = (email, password, creds) => {
   console.log("Handling login");
 
   return {
@@ -84,40 +114,8 @@ const handleLogin = (email, password) => {
  *
  * @param { method: "SIGNUP", email: string, password: string, fname: string, lname: string } payload
  */
-const handleSignUp = async (payload) => {
+const handleSignUp = async (payload, creds) => {
   console.log("Handling sign up");
-
-  const client = new SecretsManagerClient({ region: process.env.AWS_REGION });
-  const listCommand = new ListSecretsCommand({
-    region: process.env.AWS_REGION,
-    // For some reason plain text filtering isn't working. Need to fix this if we're gonna have multiple secrets
-    // Filters: [{ Key: "name", Values: "rds" }],
-  });
-
-  const res = await client.send(listCommand);
-  if (!res.SecretList || res.SecretList.length == 0)
-    return {
-      statusCode: 500,
-      statusDescription: "database creds not found",
-    };
-
-  const getSecretCommand = new GetSecretValueCommand({
-    SecretId: res.SecretList[0].Name,
-  });
-  const secret = await client.send(getSecretCommand);
-
-  if (!secret || !secret?.SecretString) {
-    return {
-      statusCode: 500,
-      statusDescription: "database creds not found in secret",
-    };
-  }
-
-  const creds = JSON.parse(secret.SecretString);
-
-  creds != undefined
-    ? console.log("Successfully fetched DB creds")
-    : console.error("Mission failed, we'll get em next time");
 
   return {
     statusCode: 201,
@@ -128,4 +126,36 @@ const handleSignUp = async (payload) => {
       location: { value: "https://aws.amazon.com/cloudfront/" },
     },
   };
+};
+
+const fetchDBSecret = async () => {
+  const client = new SecretsManagerClient({ region: process.env.AWS_REGION });
+  const listCommand = new ListSecretsCommand({
+    region: process.env.AWS_REGION,
+    // For some reason plain text filtering isn't working. Need to fix this if we're gonna have multiple secrets
+    // Filters: [{ Key: "name", Values: "rds" }],
+  });
+
+  const res = await client
+    .send(listCommand)
+    .then((res) => res.SecretList)
+    .catch((err) => {
+      console.error(err);
+      return new Error("Failed to fetch db secret");
+    });
+  if (typeof res == typeof Error || !res || res.length == 0) return undefined;
+
+  const getSecretCommand = new GetSecretValueCommand({
+    SecretId: res[0].Name,
+  });
+  const secret = await client
+    .send(getSecretCommand)
+    .then((res) => res.SecretString)
+    .catch((err) => {
+      console.error(err);
+      return new Error("Failed to fetch db secret");
+    });
+  if (typeof res == typeof Error || !res || res.length == 0) return undefined;
+
+  return secret;
 };
