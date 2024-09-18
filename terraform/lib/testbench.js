@@ -3,7 +3,7 @@
  * Runnable with `node .\testbench.js` from the command line (assuming you have node installed)
  */
 
-const { handler } = require("./auth");
+const { handler } = require("./auth/index");
 
 handler()
   .then((res) => console.log(res))
