@@ -35,13 +35,14 @@ module "auth_lambda" {
 
   # Environmental variables needed to log into database
   environment_variables = {
-    db_host     = module.db.cluster_endpoint
+    db_host     = module.db.db_instance_endpoint
     db_username = var.db-username
-    db_password = module.db.cluster_master_password
+    # Not an output of a normal RDS instance
+    # db_password = module.db.cluster_master_password
+    db_secret = module.db.db_instance_master_user_secret_arn
+    secret    = var.cloudfront_secret
     # found this by running `terraform state show insert_module_here`
     # Replace `insert_module_here` with your specific instance from a `terraform state list`
-    db_secret = module.db.cluster_master_user_secret[0].secret_arn
-    secret    = var.cloudfront_secret
   }
 
   # Might not be needed but lets specify open cors anyways
