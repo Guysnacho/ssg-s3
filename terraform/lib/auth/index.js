@@ -115,7 +115,7 @@ const handleLogin = (email, password, creds) => {
  * @param {{ method: "SIGNUP", email: string, password: string, fname: string, lname: string }} payload
  * @param {{username: string, password: string}} creds
  */
-const handleSignUp = async (payload, creds) => {
+const handleSignUp = async ({ email, password, fname, lname }, creds) => {
   console.log("Handling sign up");
 
   const sql = postgres({
@@ -125,7 +125,6 @@ const handleSignUp = async (payload, creds) => {
     host: process.env.db_host,
     connection: {
       application_name: process.env.AWS_LAMBDA_FUNCTION_NAME,
-      idle_session_timeout: 30,
     },
   });
 
@@ -147,7 +146,7 @@ const handleSignUp = async (payload, creds) => {
       console.error(err);
       return {
         statusCode: 500,
-        statusDescription: error.message,
+        statusDescription: err.message,
       };
     });
 
