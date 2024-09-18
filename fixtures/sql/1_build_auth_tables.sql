@@ -26,4 +26,4 @@ VALUES (
         'password',
         'fname',
         'lname'
-    )
+    );
