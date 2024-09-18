@@ -1,5 +1,3 @@
-create SCHEMA public;
-
 -- ALWAYS KEEP THESE SEPARATE IN REAL LIFE
 -- CREATE TABLE member (id UUID PRIMARY KEY DEFAULT gen_random_uuid ())
 -- CREATE TABLE auth (
@@ -19,3 +17,13 @@ CREATE TABLE member (
 );
 
 SELECT * from public.member;
+
+-- Test your queries here before writing up production queries in the lambda
+INSERT into
+    member (email, password, fname, lname)
+VALUES (
+        'email',
+        'password',
+        'fname',
+        'lname'
+    )
