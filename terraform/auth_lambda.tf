@@ -1,9 +1,15 @@
 locals {
-  package_url = "https://required_packages_to_run_lambda_code.zip"
-  downloaded  = "downloaded_package_${md5(local.package_url)}.zip"
+  package = "deployment_package.zip"
 }
 
 data "aws_caller_identity" "current" {}
+
+data "archive_file" "package" {
+  type        = "zip"
+  source_dir  = "${path.module}/lib/"
+  output_path = "${path.module}/lib/${local.package}"
+  excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", local.package]
+}
 
 module "auth_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
@@ -16,8 +22,15 @@ module "auth_lambda" {
   publish            = true
   authorization_type = "NONE"
   timeout            = 10
-  source_path        = "${path.module}/lib/auth.js"
-  architectures      = ["arm64"] # Arm is cheeaaaper
+  # Without a zipped package
+  # source_path            = "${path.module}/lib/auth.js"
+  # source_path  = "${path.module}/lib/"
+
+  local_existing_package = data.archive_file.package.output_path
+  package_type           = "Zip"
+  create_package         = false
+
+  architectures = ["arm64"] # Arm is cheeaaaper
   # lambda_at_edge     = true
 
   # Environmental variables needed to log into database
@@ -48,6 +61,7 @@ module "auth_lambda" {
   # replacement_security_group_ids     = [module.vpc.default_security_group_id]
   attach_network_policy              = true
   replace_security_groups_on_destroy = true
+  create_lambda_function_url         = true
 
   # Sets up rules for your service role
   assume_role_policy_statements = {

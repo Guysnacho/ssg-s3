@@ -1,17 +1,18 @@
 // import { Handler } from "aws-lambda";
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
-import { PostgrestClient } from "@supabase/postgrest-js";
 
-const {
-  SecretsManagerClient,
-  ListSecretsCommand,
+import {
   GetSecretValueCommand,
-} = require("@aws-sdk/client-secrets-manager");
-const PackageJson = require("@aws-sdk/client-rds/package.json");
+  ListSecretsCommand,
+  SecretsManagerClient,
+} from "@aws-sdk/client-secrets-manager";
+import { PostgrestClient } from "@supabase/postgrest-js";
+import postgres from "postgres";
+import { Buffer } from "node:buffer";
 // const Handler = require("aws-lambda/handler");
 
 /** @type {Handler} */
-exports.handler = async (event, context, callback) => {
+const handler = async (event, context, callback) => {
   console.log(`Starting ${context?.functionName} invocation`);
   console.debug("Payload recieved");
   console.debug(event);
@@ -28,7 +29,7 @@ exports.handler = async (event, context, callback) => {
 
   const secret = await fetchDBSecret();
 
-  if (!secret || !secret?.SecretString) {
+  if (!secret || secret == "") {
     return {
       statusCode: 500,
       statusDescription: "failed to fetch database creds",
@@ -38,7 +39,7 @@ exports.handler = async (event, context, callback) => {
   /** Database Credentials @type {{username: string, password: string} | undefined} */
   let creds;
   try {
-    creds = JSON.parse(secret.SecretString);
+    creds = JSON.parse(secret);
   } catch (error) {
     console.error(error);
     return {
@@ -106,7 +107,6 @@ const handleLogin = (email, password, creds) => {
     statusDescription: "user created",
     headers: {
       "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
-      "client-version": PackageJson.version,
       location: { value: "https://aws.amazon.com/cloudfront/" },
     },
   };
@@ -120,33 +120,58 @@ const handleLogin = (email, password, creds) => {
 const handleSignUp = async (payload, creds) => {
   console.log("Handling sign up");
 
-  const db = new PostgrestClient(
-    `postgresql://${creds.username}:${creds.password}@${process.env.db_host}:5432/postgres`
-  );
-  const { data, error, statusText } = await db
-    .from("member")
-    .insert({
-      email: payload.email,
-      password: payload.password,
-      fname: payload.fname,
-      lname: payload.lname,
+  // const db = new PostgrestClient(
+  //   `postgresql://${creds.username}:${creds.password}@${process.env.db_host}:5432/postgres`
+  // );
+  const sql = postgres({
+    database: "storefront",
+    user: creds.username,
+    pass: creds.password,
+    host: process.env.db_host,
+    connection: {
+      application_name: process.env.AWS_LAMBDA_FUNCTION_NAME,
+      idle_session_timeout: 30,
+    },
+  });
+  // const db = new PostgrestClient(process.env.db_host + ":5432/storefront", {
+  //   schema: "public",
+  //   headers: {
+  //     Authorization: `Basic ${creds.username + ":" + creds.password}`,
+  //   },
+  // });
+  // const { data, error, statusText } = await db
+  //   .from("member")
+  //   .insert({
+  //     email: payload.email,
+  //     password: payload.password,
+  //     fname: payload.fname,
+  //     lname: payload.lname,
+  //   })
+  //   .select()
+  //   .single();
+  const res = await sql`INSERT into member
+    (email, password, fname, lname) VALUES
+    (${email}, ${password}, ${fname}, ${lname})
+    
+    returning *
+    `
+    .then((res) => {
+      return {
+        statusCode: 201,
+        id: res[0].id,
+        statusDescription: "user created",
+      };
     })
-    .select()
-    .single();
+    .catch((err) => {
+      console.error("Ran into an issue signing you up");
+      console.error(err);
+      return {
+        statusCode: 500,
+        statusDescription: error.message,
+      };
+    });
 
-  if (error) {
-    console.error("Ran into an issue signing you up");
-    return {
-      statusCode: 500,
-      statusDescription: error.message,
-    };
-  }
-
-  return {
-    statusCode: 201,
-    id: data.id,
-    statusDescription: "user created",
-  };
+  return res;
 };
 
 const fetchDBSecret = async () => {
@@ -180,3 +205,5 @@ const fetchDBSecret = async () => {
 
   return secret;
 };
+
+export { handler };
