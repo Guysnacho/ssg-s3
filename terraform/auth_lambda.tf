@@ -6,8 +6,8 @@ data "aws_caller_identity" "current" {}
 
 data "archive_file" "package" {
   type        = "zip"
-  source_dir  = "${path.module}/lib/"
-  output_path = "${path.module}/lib/${local.package}"
+  source_dir  = "${path.module}/lib/auth/"
+  output_path = "${path.module}/lib/auth/${local.package}"
   excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", local.package]
 }
 
@@ -18,13 +18,13 @@ module "auth_lambda" {
   function_name      = "storefront-auth-lambda"
   description        = "Lambda for handling user login and signup requests"
   runtime            = "nodejs20.x"
-  handler            = "auth.handler"
+  handler            = "index.handler"
   publish            = true
   authorization_type = "NONE"
   timeout            = 10
   # Without a zipped package
-  # source_path            = "${path.module}/lib/auth.js"
-  # source_path  = "${path.module}/lib/"
+  # source_path            = "${path.module}/lib/auth/auth.js"
+  # source_path  = "${path.module}/lib/auth/"
 
   local_existing_package = data.archive_file.package.output_path
   package_type           = "Zip"
