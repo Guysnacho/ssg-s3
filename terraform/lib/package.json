@@ -1,9 +1,5 @@
 {
   "dependencies": {
-    "@aws-sdk/client-rds": "^3.652.0",
-    "@aws-sdk/client-secrets-manager": "^3.651.1"
-  },
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.145"
+    "@supabase/postgrest-js": "^1.16.1"
   }
 }
