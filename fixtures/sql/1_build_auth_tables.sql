@@ -1,3 +1,5 @@
+create SCHEMA public;
+
 -- ALWAYS KEEP THESE SEPARATE IN REAL LIFE
 -- CREATE TABLE member (id UUID PRIMARY KEY DEFAULT gen_random_uuid ())
 -- CREATE TABLE auth (
