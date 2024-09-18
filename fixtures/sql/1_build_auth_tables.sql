@@ -10,7 +10,7 @@
 
 CREATE TABLE member (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-    email TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     fname TEXT NOT NULL,
     lname TEXT NOT NULL
