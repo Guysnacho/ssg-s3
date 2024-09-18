@@ -6,9 +6,7 @@ import {
   ListSecretsCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
-import { PostgrestClient } from "@supabase/postgrest-js";
 import postgres from "postgres";
-import { Buffer } from "node:buffer";
 // const Handler = require("aws-lambda/handler");
 
 /** @type {Handler} */
@@ -120,9 +118,6 @@ const handleLogin = (email, password, creds) => {
 const handleSignUp = async (payload, creds) => {
   console.log("Handling sign up");
 
-  // const db = new PostgrestClient(
-  //   `postgresql://${creds.username}:${creds.password}@${process.env.db_host}:5432/postgres`
-  // );
   const sql = postgres({
     database: "storefront",
     user: creds.username,
@@ -133,22 +128,7 @@ const handleSignUp = async (payload, creds) => {
       idle_session_timeout: 30,
     },
   });
-  // const db = new PostgrestClient(process.env.db_host + ":5432/storefront", {
-  //   schema: "public",
-  //   headers: {
-  //     Authorization: `Basic ${creds.username + ":" + creds.password}`,
-  //   },
-  // });
-  // const { data, error, statusText } = await db
-  //   .from("member")
-  //   .insert({
-  //     email: payload.email,
-  //     password: payload.password,
-  //     fname: payload.fname,
-  //     lname: payload.lname,
-  //   })
-  //   .select()
-  //   .single();
+
   const res = await sql`INSERT into member
     (email, password, fname, lname) VALUES
     (${email}, ${password}, ${fname}, ${lname})
