@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "postgres": "^3.4.4"
+  },
+  "name": "sale",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Auth Lambda Package",
+  "main": "index.js",
+  "license": "ISC"
+}
