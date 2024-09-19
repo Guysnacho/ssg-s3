@@ -40,102 +40,24 @@ const handler = async (event, context, callback) => {
   }
   console.log("Successfully fetched DB creds ✨");
 
-  if (payload.method == "LOGIN") {
-    return handleLogin(payload.email, payload.password, creds);
-  } else if (payload.method == "SIGNUP") {
-    return await handleSignUp(payload, creds);
-  }
+  return await handleSale(payload, creds);
 };
 
 /**
- *
+ * Request validation
  * @param {*} event
- * @returns {{ method: "LOGIN" | "SIGNUP", email: string, password: string, fname: string, lname: string, } | undefined}
+ * @returns {{ user_id: string; quantity: number; sku: string; } | undefined}
  */
 const isValidPayload = (event) => {
   if (
-    event?.method == "SIGNUP" &&
-    event?.email &&
-    event?.email.length > 0 &&
-    event?.password &&
-    event?.password.length > 0 &&
-    event?.fname &&
-    event?.fname.length > 0 &&
-    event?.lname &&
-    event?.lname.length > 0
-  ) {
-    return event;
-  } else if (
-    event?.method == "LOGIN" &&
-    event?.email &&
-    event?.email.length > 0 &&
-    event?.password &&
-    event?.password.length > 0
+    event?.user_id &&
+    event?.user_id !== "" &&
+    event?.sku &&
+    event?.sku !== "" &&
+    event?.quantity
   ) {
     return event;
   } else return undefined;
-};
-
-/**
- *
- * @param email {string}
- * @param password {string}
- * @param {{username: string, password: string}} creds
- */
-const handleLogin = (email, password, creds) => {
-  console.log("Handling login");
-
-  return {
-    statusCode: 201,
-    statusDescription: "user created",
-    headers: {
-      "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
-      location: { value: "https://aws.amazon.com/cloudfront/" },
-    },
-  };
-};
-
-/**
- *
- * @param {{ method: "SIGNUP", email: string, password: string, fname: string, lname: string }} payload
- * @param {{username: string, password: string}} creds
- */
-const handleSignUp = async ({ email, password, fname, lname }, creds) => {
-  console.log("Handling sign up");
-
-  const sql = postgres({
-    database: "storefront",
-    user: creds.username,
-    pass: creds.password,
-    host: process.env.db_host,
-    connection: {
-      application_name: process.env.AWS_LAMBDA_FUNCTION_NAME,
-    },
-  });
-
-  const res = await sql`INSERT into member
-    (email, password, fname, lname) VALUES
-    (${email}, ${password}, ${fname}, ${lname})
-    
-    returning *
-    `
-    .then((res) => {
-      return {
-        statusCode: 201,
-        id: res[0].id,
-        statusDescription: "user created",
-      };
-    })
-    .catch((err) => {
-      console.error("Ran into an issue signing you up");
-      console.error(err);
-      return {
-        statusCode: 500,
-        statusDescription: err.message,
-      };
-    });
-
-  return res;
 };
 
 const fetchDBSecret = async () => {
@@ -168,6 +90,53 @@ const fetchDBSecret = async () => {
   if (typeof res == typeof Error || !res || res.length == 0) return undefined;
 
   return secret;
+};
+
+/**
+ * Handle our sale
+ * @param {{ user_id: string; quantity: number; sku: string; }} payload
+ * @param {{username: string, password: string}} creds
+ */
+const handleSale = async ({ user_id, sku, quantity }, creds) => {
+  console.log("Handling sign up");
+
+  // Build a client
+  const sql = postgres({
+    database: "storefront",
+    user: creds.username,
+    pass: creds.password,
+    host: process.env.db_host,
+    connection: {
+      application_name: process.env.AWS_LAMBDA_FUNCTION_NAME,
+    },
+  });
+
+  // Perform our insert and select the price
+  const res = await sql`INSERT into order
+    (user_id, sku, quantity) VALUES
+    (${user_id}, ${sku}, ${quantity});
+ 
+    returning *
+    `
+    .simple()
+    .then((res) => {
+      return {
+        statusCode: 201,
+        sku: res[0].id,
+        statusDescription: "sale complete",
+      };
+    })
+    .catch((err) => {
+      console.error("Ran into during the sale");
+      console.error(err);
+      return {
+        statusCode: 500,
+        error: err.message,
+      };
+    });
+
+  if (res.error) throw new Error(res.error);
+  return res;
 };
 
 export { handler };
