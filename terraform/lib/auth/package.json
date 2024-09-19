@@ -2,7 +2,7 @@
   "dependencies": {
     "postgres": "^3.4.4"
   },
-  "name": "lib",
+  "name": "auth",
   "type": "module",
   "version": "1.0.0",
   "description": "Auth Lambda Package",
