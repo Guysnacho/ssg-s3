@@ -96,7 +96,7 @@ const fetchDBSecret = async () => {
  * @param {{username: string, password: string}} creds
  */
 const handleSale = async ({ user_id, sku, quantity }, creds) => {
-  console.log("Handling sign up");
+  console.log("Handling sale");
 
   // Build a client
   const sql = postgres({
