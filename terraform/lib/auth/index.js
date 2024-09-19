@@ -103,6 +103,7 @@ const handleLogin = (email, password, creds) => {
 const handleSignUp = async ({ email, password, fname, lname }, creds) => {
   console.log("Handling sign up");
 
+  // Build a client
   const sql = postgres({
     database: "storefront",
     user: creds.username,
@@ -131,10 +132,11 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
       console.error(err);
       return {
         statusCode: 500,
-        statusDescription: err.message,
+        error: err.message,
       };
     });
 
+  if (res.error) throw new Error(res.error);
   return res;
 };
 
