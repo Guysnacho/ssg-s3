@@ -1,14 +1,10 @@
-locals {
-  package = "deployment_package.zip"
-}
-
 data "aws_caller_identity" "current" {}
 
-data "archive_file" "package" {
+data "archive_file" "sale_package" {
   type        = "zip"
   source_dir  = "${path.module}/lib/sale/"
-  output_path = "${path.module}/lib/sale/${local.package}"
-  excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", local.package]
+  output_path = "${path.module}/lib/sale/deployment_package.zip"
+  excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", "deployment_package.zip"]
 }
 
 module "sale_lambda" {
