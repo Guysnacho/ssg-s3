@@ -1,13 +1,11 @@
-// import { Handler } from "aws-lambda";
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
-
 import {
   GetSecretValueCommand,
   ListSecretsCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
+import { Handler } from "aws-lambda";
 import postgres from "postgres";
-// const Handler = require("aws-lambda/handler");
 
 /** @type {Handler} */
 const handler = async (event, context, callback) => {
