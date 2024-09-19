@@ -1,13 +1,11 @@
-// import { Handler } from "aws-lambda";
 // All AWS SDK Clients are available under the @aws-sdk namespace. You can install them locally to see functions and types
-
 import {
   GetSecretValueCommand,
   ListSecretsCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
 import postgres from "postgres";
-// const Handler = require("aws-lambda/handler");
+// import { Handler } from "aws-lambda";
 
 /** @type {Handler} */
 const handler = async (event, context, callback) => {
@@ -18,21 +16,12 @@ const handler = async (event, context, callback) => {
   const payload = isValidPayload(event);
 
   // If bad request recieved
-  if (!payload) {
-    return {
-      statusCode: 400,
-      statusDescription: "bad request",
-    };
-  }
+  if (!payload) throw new Error("bad request");
 
   const secret = await fetchDBSecret();
 
-  if (!secret || secret == "") {
-    return {
-      statusCode: 500,
-      statusDescription: "failed to fetch database creds",
-    };
-  }
+  if (!secret || secret == "")
+    throw new Error("failed to fetch database creds");
 
   /** Database Credentials @type {{username: string, password: string} | undefined} */
   let creds;
@@ -40,18 +29,12 @@ const handler = async (event, context, callback) => {
     creds = JSON.parse(secret);
   } catch (error) {
     console.error(error);
-    return {
-      statusCode: 500,
-      statusDescription: "Failed to fetch db creds",
-    };
+    throw new Error("Failed to fetch db creds");
   }
 
   if (creds == undefined || !creds.password || !creds.username) {
     console.error("Mission failed, we'll get em next time");
-    return {
-      statusCode: 500,
-      statusDescription: "Invalid db creds",
-    };
+    throw new Error("Invalid db creds");
   }
   console.log("Successfully fetched DB creds ✨");
 
@@ -118,6 +101,7 @@ const handleLogin = (email, password, creds) => {
 const handleSignUp = async ({ email, password, fname, lname }, creds) => {
   console.log("Handling sign up");
 
+  // Build a client
   const sql = postgres({
     database: "storefront",
     user: creds.username,
@@ -128,7 +112,7 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
     },
   });
 
-  const res = await sql`INSERT into member
+  const res = await sql`INSERT into public.member
     (email, password, fname, lname) VALUES
     (${email}, ${password}, ${fname}, ${lname})
     
@@ -146,10 +130,11 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
       console.error(err);
       return {
         statusCode: 500,
-        statusDescription: err.message,
+        error: err.message,
       };
     });
 
+  if (res.error) throw new Error(res.error);
   return res;
 };
 

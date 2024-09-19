@@ -5,7 +5,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145"
   },
-  "name": "auth",
+  "name": "sale",
   "type": "module",
   "version": "1.0.0",
   "description": "Auth Lambda Package",
