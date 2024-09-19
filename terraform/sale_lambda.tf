@@ -22,7 +22,7 @@ module "sale_lambda" {
   # source_path            = "${path.module}/lib/sale/sale.js"
   # source_path  = "${path.module}/lib/sale/"
 
-  local_existing_package = data.sale_archive_file.package.output_path
+  local_existing_package = data.archive_file.sale_package.output_path
   package_type           = "Zip"
   create_package         = false
 

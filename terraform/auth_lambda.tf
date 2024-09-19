@@ -22,7 +22,7 @@ module "auth_lambda" {
   # source_path            = "${path.module}/lib/auth/auth.js"
   # source_path  = "${path.module}/lib/auth/"
 
-  local_existing_package = data.auth_archive_file.package.output_path
+  local_existing_package = data.archive_file.auth_package.output_path
   package_type           = "Zip"
   create_package         = false
 
