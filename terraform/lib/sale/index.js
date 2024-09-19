@@ -112,11 +112,10 @@ const handleSale = async ({ user_id, sku, quantity }, creds) => {
   // Perform our insert and select the price
   const res = await sql`INSERT into public.order
     (user_id, sku, quantity) VALUES
-    (${user_id}, ${sku}, ${quantity});
+    (${user_id}, ${sku}, ${quantity})
  
     returning *
     `
-    .simple()
     .then((res) => {
       return {
         statusCode: 201,
