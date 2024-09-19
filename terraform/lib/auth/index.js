@@ -4,8 +4,8 @@ import {
   ListSecretsCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
-import { Handler } from "aws-lambda";
 import postgres from "postgres";
+// import { Handler } from "aws-lambda";
 
 /** @type {Handler} */
 const handler = async (event, context, callback) => {
@@ -112,7 +112,7 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
     },
   });
 
-  const res = await sql`INSERT into member
+  const res = await sql`INSERT into public.member
     (email, password, fname, lname) VALUES
     (${email}, ${password}, ${fname}, ${lname})
     

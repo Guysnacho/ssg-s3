@@ -4,8 +4,8 @@ import {
   ListSecretsCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
-import { Handler } from "aws-lambda";
 import postgres from "postgres";
+// import { Handler } from "aws-lambda";
 
 /** @type {Handler} */
 const handler = async (event, context, callback) => {
@@ -110,7 +110,7 @@ const handleSale = async ({ user_id, sku, quantity }, creds) => {
   });
 
   // Perform our insert and select the price
-  const res = await sql`INSERT into order
+  const res = await sql`INSERT into public.order
     (user_id, sku, quantity) VALUES
     (${user_id}, ${sku}, ${quantity});
  
@@ -125,7 +125,7 @@ const handleSale = async ({ user_id, sku, quantity }, creds) => {
       };
     })
     .catch((err) => {
-      console.error("Ran into during the sale");
+      console.error("Ran into an issue during the sale");
       console.error(err);
       return {
         statusCode: 500,
