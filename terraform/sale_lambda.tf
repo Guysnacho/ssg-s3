@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 data "archive_file" "sale_package" {
   type        = "zip"
-  source_dir  = "${path.module}/lib/sale/"
+  source_dir  = "${path.module}/lib/sale"
   output_path = "${path.module}/lib/sale/deployment_package.zip"
   excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", "deployment_package.zip"]
 }
@@ -12,7 +12,7 @@ module "sale_lambda" {
   version = "7.9.0"
 
   function_name      = "storefront-sale-lambda"
-  description        = "Lambda for handling user login and signup requests"
+  description        = "Lambda for handling sales by our users"
   runtime            = "nodejs20.x"
   handler            = "index.handler"
   publish            = true

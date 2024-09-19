@@ -2,7 +2,7 @@ data "aws_caller_identity" "auth_current" {}
 
 data "archive_file" "auth_package" {
   type        = "zip"
-  source_dir  = "${path.module}/lib/auth/"
+  source_dir  = "${path.module}/lib/auth"
   output_path = "${path.module}/lib/auth/deployment_package.zip"
   excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", "deployment_package.zip"]
 }
