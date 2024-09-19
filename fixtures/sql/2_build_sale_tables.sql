@@ -1,4 +1,3 @@
--- Active: 1726216791298@@storefront-db.ct84ooq2shac.us-west-2.rds.amazonaws.com@5432@storefront
 CREATE TABLE public.stock (
     sku SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
