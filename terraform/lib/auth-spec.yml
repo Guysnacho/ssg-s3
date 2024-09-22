@@ -1,0 +1,65 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Auth Lambda Spec"
+basePath: "/"
+tags:
+- name: "auth"
+  description: "Logging into and signing up for services"
+schemes:
+- "https"
+- "http"
+paths:
+  /auth:
+    post:
+      tags:
+      - "auth"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object used for auth requests to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/AuthRequest"
+      responses:
+        "500":
+          description: "bad request"
+definitions:
+  AuthRequest:
+    type: "object"
+    required:
+    - "method"
+    - "email"
+    - "password"
+    - "fname"
+    - "lname"
+    properties:
+      method:
+        type: "string"
+        example: "method"
+        enum:
+        - "SIGNUP"
+        - "LOGIN"
+      email:
+        type: "string"
+        example: "email"
+      password:
+        type: "string"
+        example: "password"
+      fname:
+        type: "string"
+        example: "fname"
+      lname:
+        type: "string"
+        example: "lname"
+    xml:
+      name: "AuthRequest"
+externalDocs:
+  description: "AWS SS3 -> EC2 Project"
+  url: "https://github.com/Guysnacho/ssg-s3"

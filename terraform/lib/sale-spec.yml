@@ -1,0 +1,54 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Sale Lambda Spec"
+basePath: "/"
+tags:
+- name: "sale"
+  description: "Logging into and signing up for services"
+schemes:
+- "https"
+- "http"
+paths:
+  /sale:
+    post:
+      tags:
+      - "sale"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object used for sale requests to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/SaleRequest"
+      responses:
+        "500":
+          description: "bad request"
+definitions:
+  SaleRequest:
+    type: "object"
+    required:
+    - "user_id"
+    - "sku"
+    - "quantity"
+    properties:
+      user_id:
+        type: "string"
+        example: "123-1231-123456789"
+      sku:
+        type: "string"
+        example: "3"
+      quantity:
+        type: "number"
+        example: 5
+    xml:
+      name: "SaleRequest"
+externalDocs:
+  description: "AWS SS3 -> EC2 Project"
+  url: "https://github.com/Guysnacho/ssg-s3"
