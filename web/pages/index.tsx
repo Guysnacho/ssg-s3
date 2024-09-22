@@ -11,39 +11,26 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export type ProductProps = {
+  sku: string;
   name: string;
   price: number;
-  thumbnail: string;
+  item_url: string;
 };
-
-const productList: ProductProps[] = [
-  {
-    name: "Bando Stone and The New World",
-    price: 45.15,
-    thumbnail:
-      "https://t2.genius.com/unsafe/728x0/https%3A%2F%2Fimages.genius.com%2Ff19320aae82a75396d97def01ae89ff3.1000x1000x1.png",
-  },
-  {
-    name: "alligator bites never heal - Doechii",
-    price: 30,
-    thumbnail:
-      "https://shop.capitolmusic.com/cdn/shop/files/DoechiiABNHLPInsert.png?v=1724951711&width=800",
-  },
-  {
-    name: "Nova - James Fauntleroy, Terrace Martin",
-    price: 30.99,
-    thumbnail:
-      "https://images.squarespace-cdn.com/content/v1/5699291fa976afc919dbca7d/a701db3b-83c1-457b-a892-0c46b0e6749c/Nova+Artwork.jpg?format=500w",
-  },
-];
 
 export default function Home() {
   const [selected, setSelected] = useState<ProductProps | undefined>();
+  const [productList, setProductList] = useState<ProductProps[]>([]);
+
+  // Fetch Catalog
+  useEffect(() => {
+    fetchCatalog(setProductList);
+  }, []);
+
   return (
     <div className={`container mx-auto ${inter.className}`}>
       {selected ? <p>Selected Item - {selected.name}</p> : undefined}
@@ -52,9 +39,10 @@ export default function Home() {
           <Product
             key={item.name}
             setSelected={setSelected}
+            sku={item.sku}
             name={item.name}
             price={item.price}
-            thumbnail={item.thumbnail}
+            item_url={item.item_url}
           />
         ))}
       </div>
@@ -90,3 +78,17 @@ export default function Home() {
     </div>
   );
 }
+
+const fetchCatalog = async (
+  setProductList: Dispatch<SetStateAction<ProductProps[]>>
+) => {
+  fetch(`${process.env.NEXT_PUBLIC_APIGW}/catalog`)
+    .then(async (res) => {
+      const body = await res.json();
+      setProductList(body);
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("Failed to fetch catalog");
+    });
+};
