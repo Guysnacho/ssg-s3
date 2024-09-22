@@ -47,12 +47,18 @@ const handler = async (event, context, callback) => {
  * @returns {{ user_id: string; quantity: number; sku: string; } | undefined}
  */
 const isValidPayload = (event) => {
+  let payload;
+  try {
+    payload = JSON.parse(event?.body);
+  } catch (error) {
+    throw new Error("Invalid payload");
+  }
   if (
-    event?.user_id &&
-    event?.user_id !== "" &&
-    event?.sku &&
-    event?.sku !== "" &&
-    event?.quantity
+    payload.user_id &&
+    payload.user_id !== "" &&
+    payload.sku &&
+    payload.sku !== "" &&
+    payload.quantity
   ) {
     return event;
   } else return undefined;
@@ -137,4 +143,3 @@ const handleSale = async ({ user_id, sku, quantity }, creds) => {
 };
 
 export { handler };
-

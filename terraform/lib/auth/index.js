@@ -51,24 +51,30 @@ const handler = async (event, context, callback) => {
  * @returns {{ method: "LOGIN" | "SIGNUP", email: string, password: string, fname: string, lname: string, } | undefined}
  */
 const isValidPayload = (event) => {
+  let payload;
+  try {
+    payload = JSON.parse(event?.body);
+  } catch (error) {
+    throw new Error("Invalid payload");
+  }
   if (
-    event?.method == "SIGNUP" &&
-    event?.email &&
-    event?.email.length > 0 &&
-    event?.password &&
-    event?.password.length > 0 &&
-    event?.fname &&
-    event?.fname.length > 0 &&
-    event?.lname &&
-    event?.lname.length > 0
+    payload.method == "SIGNUP" &&
+    payload.email &&
+    payload.email.length > 0 &&
+    payload.password &&
+    payload.password.length > 0 &&
+    payload.fname &&
+    payload.fname.length > 0 &&
+    payload.lname &&
+    payload.lname.length > 0
   ) {
     return event;
   } else if (
-    event?.method == "LOGIN" &&
-    event?.email &&
-    event?.email.length > 0 &&
-    event?.password &&
-    event?.password.length > 0
+    payload.method == "LOGIN" &&
+    payload.email &&
+    payload.email.length > 0 &&
+    payload.password &&
+    payload.password.length > 0
   ) {
     return event;
   } else return undefined;
