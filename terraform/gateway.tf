@@ -16,7 +16,7 @@ module "gateway" {
   cors_configuration = {
     allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
     allow_methods = ["POST"] # Allow all methods - ["*"]
-    allow_origins = ["*"]    # module.cloudfront.cloudfront_distribution_domain_name
+    allow_origins = ["localhost:3000", module.cloudfront.cloudfront_distribution_domain_name]
   }
 
   # Access logs
