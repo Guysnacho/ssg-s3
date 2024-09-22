@@ -41,7 +41,8 @@ const handler = async (event, context, callback) => {
   if (payload.method == "LOGIN") {
     return handleLogin(payload.email, payload.password, creds);
   } else if (payload.method == "SIGNUP") {
-    return await handleSignUp(payload, creds);
+    const res = await handleSignUp(payload, creds);
+    return { message: "User created", id: res[0].id };
   }
 };
 

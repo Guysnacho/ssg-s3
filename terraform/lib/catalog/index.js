@@ -33,7 +33,8 @@ const handler = async (event, context, callback) => {
   }
   console.log("Successfully fetched DB creds ✨");
 
-  return await fetchCatalog(creds);
+  const res = await fetchCatalog(creds);
+  return res;
 };
 
 const fetchDBSecret = async () => {

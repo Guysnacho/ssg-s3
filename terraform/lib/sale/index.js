@@ -37,8 +37,8 @@ const handler = async (event, context, callback) => {
     throw new Error("Invalid db creds");
   }
   console.log("Successfully fetched DB creds ✨");
-
-  return await handleSale(payload, creds);
+  const res = await handleSale(payload, creds);
+  return res;
 };
 
 /**

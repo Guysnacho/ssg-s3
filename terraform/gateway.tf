@@ -15,8 +15,8 @@ module "gateway" {
 
   cors_configuration = {
     allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
-    allow_methods = ["POST"] # Allow all methods - ["*"]
-    allow_origins = ["localhost:3000", module.cloudfront.cloudfront_distribution_domain_name]
+    allow_methods = ["POST", "GET"] # Allow all methods - ["*"]
+    allow_origins = ["*"]
   }
 
   # Access logs
@@ -58,6 +58,7 @@ module "gateway" {
         timeout_milliseconds   = 12000
         description            = "Sale lambda"
         passthrough_behavior   = "WHEN_NO_TEMPLATES"
+        # type                      = "AWS_PROXY"
       }
     }
     "POST /auth" = {
@@ -67,6 +68,17 @@ module "gateway" {
         timeout_milliseconds   = 12000
         description            = "Auth lambda"
         passthrough_behavior   = "WHEN_NO_TEMPLATES"
+        # type                      = "AWS_PROXY"
+      }
+    }
+    "GET /catalog" = {
+      integration = {
+        uri                    = module.catalog_lambda.lambda_function_invoke_arn
+        payload_format_version = "2.0"
+        timeout_milliseconds   = 12000
+        description            = "Catalog lambda"
+        passthrough_behavior   = "WHEN_NO_TEMPLATES"
+        # type                      = "AWS_PROXY"
       }
     }
     # "$default" = {
