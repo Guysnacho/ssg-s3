@@ -60,7 +60,7 @@ const isValidPayload = (event) => {
     payload.sku !== "" &&
     payload.quantity
   ) {
-    return event;
+    return payload;
   } else return undefined;
 };
 

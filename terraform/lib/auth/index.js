@@ -76,7 +76,7 @@ const isValidPayload = (event) => {
     payload.password &&
     payload.password.length > 0
   ) {
-    return event;
+    return payload;
   } else return undefined;
 };
 
