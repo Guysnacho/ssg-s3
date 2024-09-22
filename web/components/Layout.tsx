@@ -4,9 +4,14 @@ import {
   Avatar,
   Box,
   Button,
+  Checkbox,
   Flex,
+  FormControl,
+  FormLabel,
+  Heading,
   HStack,
   IconButton,
+  Input,
   Menu,
   MenuButton,
   MenuDivider,
@@ -15,8 +20,10 @@ import {
   Stack,
   useColorModeValue,
   useDisclosure,
+  Image,
+  Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   children: React.ReactNode;
@@ -46,9 +53,18 @@ const NavLink = ({ label, url }: { url: string; label: string }) => {
   );
 };
 
-export default function Layout({ children } : Props) {
+export default function Layout({ children }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isAuthed, setIsAuthed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [method, setMethod] = useState<"SIGNUP" | "LOGIN" | undefined>();
+
+  // Check user auth
+  useEffect(() => {
+    if (localStorage.getItem("storefront-uid") != null) {
+      setIsAuthed(true);
+    } else setIsAuthed(false);
+  }, []);
 
   return (
     <>
@@ -103,7 +119,11 @@ export default function Layout({ children } : Props) {
                   rounded={"full"}
                   cursor={"pointer"}
                   minW={0}
-                  onClick={() => handleSignUp()}
+                  onClick={() => {
+                    // setIsLoading(true);
+                    // handleSignUp().finally(() => setIsLoading(false));
+                    setMethod(method === "SIGNUP" ? undefined : "SIGNUP");
+                  }}
                 >
                   Sign Up
                 </Button>
@@ -111,7 +131,11 @@ export default function Layout({ children } : Props) {
                   rounded={"full"}
                   cursor={"pointer"}
                   minW={0}
-                  onClick={() => handleLogIn()}
+                  onClick={() => {
+                    // setIsLoading(true);
+                    // handleLogIn().finally(() => setIsLoading(false));
+                    setMethod(method === "LOGIN" ? undefined : "LOGIN");
+                  }}
                 >
                   Log In
                 </Button>
@@ -130,6 +154,65 @@ export default function Layout({ children } : Props) {
           </Box>
         ) : null}
       </Box>
+
+      {method ? (
+        <Stack minH={"25vh"} direction={{ base: "column", md: "row" }}>
+          <Flex p={8} flex={1} align={"center"} justify={"center"}>
+            <Stack spacing={4} w={"full"} maxW={"md"}>
+              <Heading fontSize={"2xl"}>
+                {method == "LOGIN"
+                  ? "Log in to your account"
+                  : "Sign up for an account"}
+              </Heading>
+              {method === "LOGIN" ? (
+                <>
+                  <FormControl id="email">
+                    <FormLabel>Email address</FormLabel>
+                    <Input type="email" />
+                  </FormControl>
+                  <FormControl id="password">
+                    <FormLabel>Password</FormLabel>
+                    <Input type="password" />
+                  </FormControl>
+                </>
+              ) : (
+                <>
+                  <FormControl id="email">
+                    <FormLabel>Email address</FormLabel>
+                    <Input type="email" />
+                  </FormControl>
+                  <FormControl id="password">
+                    <FormLabel>Password</FormLabel>
+                    <Input type="password" />
+                  </FormControl>
+                  <FormControl id="fname">
+                    <FormLabel>First Name</FormLabel>
+                    <Input type="text" />
+                  </FormControl>
+                  <FormControl id="lname">
+                    <FormLabel>Last Name</FormLabel>
+                    <Input type="text" />
+                  </FormControl>
+                </>
+              )}
+              <Stack spacing={6}>
+                <Button colorScheme={"blue"} variant={"solid"}>
+                  {method === "LOGIN" ? "Log in" : "Sign up"}
+                </Button>
+              </Stack>
+            </Stack>
+          </Flex>
+          <Flex flex={1}>
+            <Image
+              alt={"Login Image"}
+              objectFit={"cover"}
+              src={
+                "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80"
+              }
+            />
+          </Flex>
+        </Stack>
+      ) : undefined}
 
       <div>{children}</div>
     </>

@@ -1,7 +1,7 @@
-export const handleLogIn = () => {
+export const handleLogIn = async () => {
   alert("Logging in");
 };
 
-export const handleSignUp = () => {
+export const handleSignUp = async () => {
   alert("Signing up");
 };

@@ -23,12 +23,13 @@ export type ProductProps = {
 };
 
 export default function Home() {
-  const [user, _] = useState(localStorage.getItem("storefront-uid"));
+  const [user, setUser] = useState<string | null>("");
   const [selected, setSelected] = useState<ProductProps | undefined>();
   const [productList, setProductList] = useState<ProductProps[]>([]);
 
   // Fetch Catalog
   useEffect(() => {
+    setUser(localStorage.getItem("storefront-uid"));
     fetchCatalog(setProductList);
   }, []);
 
