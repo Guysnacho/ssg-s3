@@ -23,7 +23,7 @@ export type ProductProps = {
 };
 
 export default function Home() {
-  const [user, setUser] = useState(localStorage.getItem("storefront-uid"));
+  const [user, _] = useState(localStorage.getItem("storefront-uid"));
   const [selected, setSelected] = useState<ProductProps | undefined>();
   const [productList, setProductList] = useState<ProductProps[]>([]);
 

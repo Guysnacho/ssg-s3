@@ -39,10 +39,11 @@ const handler = async (event, context, callback) => {
   console.log("Successfully fetched DB creds ✨");
 
   if (payload.method == "LOGIN") {
-    return handleLogin(payload.email, payload.password, creds);
+    const res = await handleLogin(payload.email, payload.password, creds);
+    return res;
   } else if (payload.method == "SIGNUP") {
     const res = await handleSignUp(payload, creds);
-    return { message: "User created", id: res[0].id };
+    return res;
   }
 };
 
@@ -87,17 +88,43 @@ const isValidPayload = (event) => {
  * @param password {string}
  * @param {{username: string, password: string}} creds
  */
-const handleLogin = (email, password, creds) => {
+const handleLogin = async (email, password, creds) => {
   console.log("Handling login");
 
-  return {
-    statusCode: 201,
-    statusDescription: "user created",
-    headers: {
-      "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
-      location: { value: "https://aws.amazon.com/cloudfront/" },
+  // Build a client
+  const sql = postgres({
+    database: "storefront",
+    user: creds.username,
+    pass: creds.password,
+    host: process.env.db_host,
+    connection: {
+      application_name: process.env.AWS_LAMBDA_FUNCTION_NAME,
     },
-  };
+  });
+
+  const res = await sql`SELECT * from public.member
+  WHERE email = ${email} AND password = ${password}
+  
+  returning *
+  `
+    .then((res) => {
+      return {
+        statusCode: 201,
+        statusDescription: "user logged in",
+        body: { id: res[0].id },
+      };
+    })
+    .catch((err) => {
+      console.error("Ran into an issue signing you up");
+      console.error(err);
+      return {
+        statusCode: 500,
+        statusDescription: err.message,
+      };
+    });
+
+  if (res.error) throw new Error(res.error);
+  return res;
 };
 
 /**
@@ -128,8 +155,8 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
     .then((res) => {
       return {
         statusCode: 201,
-        id: res[0].id,
         statusDescription: "user created",
+        body: { id: res[0].id },
       };
     })
     .catch((err) => {
@@ -137,7 +164,7 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
       console.error(err);
       return {
         statusCode: 500,
-        error: err.message,
+        statusDescription: err.message,
       };
     });
 
