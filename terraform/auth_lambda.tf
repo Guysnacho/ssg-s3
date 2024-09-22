@@ -31,7 +31,7 @@ module "auth_lambda" {
   package_type           = "Zip"
   create_package         = false
 
-  architectures  = ["arm64"] # Arm is cheeaaaper
+  architectures = ["arm64"] # Arm is cheeaaaper
   # lambda_at_edge = true
 
   # Environmental variables needed to log into database
@@ -87,13 +87,14 @@ module "auth_lambda" {
       resources = ["*"]
     }
   }
-  # allowed_triggers = {
-  #   # Allows any invoker through the API Gateway
-  #   APIGatewayAny = {
-  #     service    = "apigateway"
-  #     source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*/*/*"
-  #   }
-  # }
+  allowed_triggers = {
+    # Allows any invoker through the API Gateway
+    // Allows any invoker through the API Gateway
+    APIGatewayAny = {
+      service    = "apigateway"
+      source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*/*/*"
+    }
+  }
 }
 
 # Allows you to add the lambda to VPC
