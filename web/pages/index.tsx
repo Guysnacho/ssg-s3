@@ -23,6 +23,7 @@ export type ProductProps = {
 };
 
 export default function Home() {
+  const [user, setUser] = useState(localStorage.getItem("storefront-uid"));
   const [selected, setSelected] = useState<ProductProps | undefined>();
   const [productList, setProductList] = useState<ProductProps[]>([]);
 
@@ -66,7 +67,7 @@ export default function Home() {
             <Button
               colorScheme="green"
               onClick={() => {
-                handlePurchase(selected!);
+                handlePurchase(user ?? "", selected!);
                 setSelected(undefined);
               }}
             >
