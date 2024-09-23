@@ -9,6 +9,9 @@ jobs:
   TF-Apply:
     name: 🏗️ Plan Infra
     runs-on: ubuntu-latest
+    outputs:
+      # https://unix.stackexchange.com/questions/281309/shell-syntax-how-to-correctly-use-to-break-lines
+      apigw: cd terraform && terraform output -raw api-route
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -32,9 +35,6 @@ jobs:
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
-    outputs:
-      # https://unix.stackexchange.com/questions/281309/shell-syntax-how-to-correctly-use-to-break-lines
-      apigw: cd terraform \ && terraform output -raw api-route
   web-deploy:
     name: 💫 Build
     runs-on: ubuntu-latest
