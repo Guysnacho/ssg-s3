@@ -55,6 +55,11 @@ jobs:
           cd web
           npm install
 
+      - name: ⚗️ Write env variables
+        run: |
+          cd web
+          echo $(terraform output -raw api-route) > .env
+
       - name: 🔨 Build Project
         run: |
           cd web
