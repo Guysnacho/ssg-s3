@@ -50,11 +50,17 @@ jobs:
           aws-region: us-west-2
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
       - name: 😪 Installing Dependencies
         run: |
           cd web
           npm install
+
+      - name: ⚗️ Write env variables
+        run: |
+          cd web
+          echo $(terraform output -raw api-route) > .env
 
       - name: 🔨 Build Project
         run: |
