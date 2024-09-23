@@ -58,7 +58,7 @@ jobs:
       - name: ⚗️ Write env variables
         run: |
           cd web
-          echo $(terraform output -raw api-route) > .env
+          echo NEXT_PUBLIC_APIGW=$(terraform output -raw api-route) > .env
 
       - name: 🔨 Build Project
         run: |
