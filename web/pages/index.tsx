@@ -10,6 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Text,
 } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -21,6 +22,7 @@ export type ProductProps = {
   name: string;
   price: number;
   item_url: string;
+  quantity: number;
 };
 
 export default function Home() {
@@ -38,14 +40,18 @@ export default function Home() {
     <div className={`container mx-auto ${inter.className}`}>
       <div className="flex flex-wrap w-4/5 mx-auto justify-evenly gap-5">
         {productList.map((item) => (
-          <Product
-            key={item.name}
-            setSelected={setSelected}
-            sku={item.sku}
-            name={item.name}
-            price={item.price}
-            item_url={item.item_url}
-          />
+          <>
+            <Product
+              key={item.name}
+              setSelected={setSelected}
+              sku={item.sku}
+              name={item.name}
+              price={item.price}
+              item_url={item.item_url}
+              quantity={item.quantity}
+            />
+            <Text>Left in Stock: {item.quantity}</Text>
+          </>
         ))}
       </div>
       <Modal
