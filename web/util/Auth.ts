@@ -28,7 +28,7 @@ export const handleLogIn = async (email: string, password: string) => {
     return {
       statusCode: 403,
       statusDescription: "Invalid login",
-    };
+    } satisfies AuthResponse;
   }
 
   const req: LogInRequest = {

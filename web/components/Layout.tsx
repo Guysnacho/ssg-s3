@@ -110,8 +110,13 @@ export default function Layout({ children }: Props) {
             localStorage.setItem(AUTH_KEY, res.body.id);
             setIsAuthed(true);
           } else {
-            alert(res.statusDescription);
+            console.error(res.statusDescription);
+            alert("something went wrong");
           }
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("something went wrong");
         })
         .finally(() => setIsLoading(false));
     }

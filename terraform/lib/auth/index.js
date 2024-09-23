@@ -41,7 +41,7 @@ const handler = async (event, context, callback) => {
   if (payload.method == "LOGIN") {
     const res = await handleLogin(payload.email, payload.password, creds);
     return JSON.stringify(res);
-  } else if (payload.method == "SIGNUP") {
+  } else {
     const res = await handleSignUp(payload, creds);
     return JSON.stringify(res);
   }
@@ -70,7 +70,7 @@ const isValidPayload = (event) => {
     payload.lname &&
     payload.lname.length > 0
   ) {
-    return event;
+    return payload;
   } else if (
     payload.method == "LOGIN" &&
     payload.email &&
@@ -157,6 +157,7 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
     returning *
     `
     .then((res) => {
+      console.log("Successfully signed up");
       return {
         statusCode: 201,
         statusDescription: "user created",
