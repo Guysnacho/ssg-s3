@@ -1,8 +1,3 @@
-# provider "aws" {
-#   region = "us-east-1"
-#   alias  = "auth-provider"
-# }
-
 data "aws_caller_identity" "auth_current" {}
 
 data "archive_file" "auth_package" {
@@ -88,7 +83,6 @@ module "auth_lambda" {
   }
   allowed_triggers = {
     # Allows any invoker through the API Gateway
-    // Allows any invoker through the API Gateway
     APIGatewayAny = {
       service    = "apigateway"
       source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*/*/*"
