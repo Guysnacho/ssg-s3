@@ -32,7 +32,8 @@ jobs:
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
     outputs:
-      apigw: cd terraform && terraform output -raw api-route
+      # https://unix.stackexchange.com/questions/281309/shell-syntax-how-to-correctly-use-to-break-lines
+      apigw: cd terraform \ && terraform output -raw api-route
   web-deploy:
     name: 💫 Deploy
     runs-on: ubuntu-latest
