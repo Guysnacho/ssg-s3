@@ -1,4 +1,5 @@
 import Product from "@/components/Product";
+import { AUTH_KEY } from "@/util/Auth";
 import { handlePurchase } from "@/util/Orders";
 import {
   Button,
@@ -29,7 +30,7 @@ export default function Home() {
 
   // Fetch Catalog
   useEffect(() => {
-    setUser(localStorage.getItem("storefront-uid"));
+    setUser(localStorage.getItem(AUTH_KEY));
     fetchCatalog(setProductList);
   }, []);
 

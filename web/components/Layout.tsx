@@ -1,4 +1,4 @@
-import { handleLogIn, handleSignUp } from "@/util/Auth";
+import { AUTH_KEY, handleLogIn, handleSignUp } from "@/util/Auth";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import {
   Avatar,
@@ -64,20 +64,36 @@ export default function Layout({ children }: Props) {
 
   // Check user auth
   useEffect(() => {
-    if (localStorage.getItem("storefront-uid") != null) {
+    if (localStorage.getItem(AUTH_KEY) != null) {
       setIsAuthed(true);
     } else setIsAuthed(false);
   }, []);
 
   const handleAuth = async () => {
     if (method === "LOGIN") {
-      await handleLogIn(email, password).then((res) => {
-        console.log(res);
-      });
+      await handleLogIn(email, password)
+        .then((res) => {
+          console.log(res);
+          if (res?.body) {
+            localStorage.setItem(AUTH_KEY, res.body.id);
+            setIsAuthed(true);
+          } else {
+            alert(res.statusDescription);
+          }
+        })
+        .finally(() => setIsLoading(false));
     } else if (method === "SIGNUP") {
-      await handleSignUp(email, password, fname, lname).then((res) => {
-        console.log(res);
-      });
+      await handleSignUp(email, password, fname, lname)
+        .then((res) => {
+          console.log(res);
+          if (res?.body) {
+            localStorage.setItem(AUTH_KEY, res.body.id);
+            setIsAuthed(true);
+          } else {
+            alert(res.statusDescription);
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
