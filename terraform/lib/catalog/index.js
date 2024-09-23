@@ -101,7 +101,6 @@ const fetchCatalog = async (creds) => {
       };
     });
 
-  if (res.error) throw new Error(res.error);
   return res;
 };
 

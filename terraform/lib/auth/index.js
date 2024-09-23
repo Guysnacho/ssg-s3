@@ -40,10 +40,10 @@ const handler = async (event, context, callback) => {
 
   if (payload.method == "LOGIN") {
     const res = await handleLogin(payload.email, payload.password, creds);
-    return res;
+    return JSON.stringify(res);
   } else if (payload.method == "SIGNUP") {
     const res = await handleSignUp(payload, creds);
-    return res;
+    return JSON.stringify(res);
   }
 };
 
@@ -103,16 +103,21 @@ const handleLogin = async (email, password, creds) => {
   });
 
   const res = await sql`SELECT * from public.member
-  WHERE email = ${email} AND password = ${password}
-  
-  returning *
-  `
+  WHERE email = ${email} AND password = ${password}`
     .then((res) => {
-      return {
-        statusCode: 201,
-        statusDescription: "user logged in",
-        body: { id: res[0].id },
-      };
+      console.debug(res);
+      if (res.length == 0) {
+        return {
+          statusCode: 404,
+          statusDescription: "user not found",
+        };
+      } else {
+        return {
+          statusCode: 201,
+          statusDescription: "user logged in",
+          body: { id: res[0].id },
+        };
+      }
     })
     .catch((err) => {
       console.error("Ran into an issue signing you up");
@@ -123,7 +128,6 @@ const handleLogin = async (email, password, creds) => {
       };
     });
 
-  if (res.error) throw new Error(res.error);
   return res;
 };
 
@@ -168,7 +172,6 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
       };
     });
 
-  if (res.error) throw new Error(res.error);
   return res;
 };
 

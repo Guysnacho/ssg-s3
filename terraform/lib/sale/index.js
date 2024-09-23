@@ -38,7 +38,7 @@ const handler = async (event, context, callback) => {
   }
   console.log("Successfully fetched DB creds ✨");
   const res = await handleSale(payload, creds);
-  return res;
+  return JSON.stringify(res);
 };
 
 /**
@@ -138,7 +138,6 @@ const handleSale = async ({ user_id, sku, quantity }, creds) => {
       };
     });
 
-  if (res.error) throw new Error(res.error);
   return res;
 };
 
