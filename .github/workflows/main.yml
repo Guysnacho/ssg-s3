@@ -8,9 +8,9 @@ jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
     runs-on: ubuntu-latest
+    # https://stackoverflow.com/questions/59175332/using-output-from-a-previous-job-in-a-new-one-in-a-github-action
     outputs:
-      # https://unix.stackexchange.com/questions/281309/shell-syntax-how-to-correctly-use-to-break-lines
-      apigw: cd terraform && terraform output -raw api-route
+      apigw: ${{steps.APIGW.outputs.NEXT_PUBLIC_APIGW}}
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
       - name: ⚗️ Write env variables
         run: |
           cd web
-          echo ${{steps.APIGW.outputs.APIGW}} > .env
+          echo ${{needs.TF-Apply.outputs.apigw}} > .env
 
       - name: 🔨 Build Project
         run: |
