@@ -14,7 +14,6 @@ import {
   Input,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItem,
   MenuList,
   Spinner,
@@ -22,7 +21,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface Props {
   children: React.ReactNode;
@@ -32,14 +31,35 @@ const Links = [
   { label: "Home", url: "/" },
   { label: "GitHub", url: "https://github.com/guysnacho" },
 ];
+const AuthedLinks = [
+  { label: "Home", url: "/" },
+  { label: "GitHub", url: "https://github.com/guysnacho" },
+  { label: "Logout", url: "#" },
+];
 
-const NavLink = ({ label, url }: { url: string; label: string }) => {
+const NavLink = ({
+  label,
+  url,
+  setIsAuthed,
+}: {
+  url: string;
+  label: string;
+  setIsAuthed?: Dispatch<SetStateAction<boolean>>;
+}) => {
   return (
     <Box
       as="a"
       px={2}
       py={1}
       rounded={"md"}
+      onClick={
+        label === "Logout"
+          ? () => {
+              localStorage.removeItem(AUTH_KEY);
+              setIsAuthed!(false);
+            }
+          : undefined
+      }
       _hover={{
         textDecoration: "none",
         bg: useColorModeValue("gray.200", "gray.700"),
@@ -115,9 +135,18 @@ export default function Layout({ children }: Props) {
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {Links.map((link) => (
-                <NavLink key={link.url} label={link.label} url={link.url} />
-              ))}
+              {isAuthed
+                ? AuthedLinks.map((link) => (
+                    <NavLink
+                      key={link.url}
+                      label={link.label}
+                      url={link.url}
+                      setIsAuthed={setIsAuthed}
+                    />
+                  ))
+                : Links.map((link) => (
+                    <NavLink key={link.url} label={link.label} url={link.url} />
+                  ))}
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
@@ -138,10 +167,15 @@ export default function Layout({ children }: Props) {
                   />
                 </MenuButton>
                 <MenuList>
-                  <MenuItem>Link 1</MenuItem>
-                  <MenuItem>Link 2</MenuItem>
-                  <MenuDivider />
-                  <MenuItem>Link 3</MenuItem>
+                  {AuthedLinks.map((link) => (
+                    <MenuItem key={link.url}>
+                      <NavLink
+                        label={link.label}
+                        url={link.url}
+                        setIsAuthed={setIsAuthed}
+                      />
+                    </MenuItem>
+                  ))}
                 </MenuList>
               </Menu>
             ) : (
@@ -178,9 +212,18 @@ export default function Layout({ children }: Props) {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
-              {Links.map((link) => (
-                <NavLink key={link.url} label={link.label} url={link.url} />
-              ))}
+              {isAuthed
+                ? AuthedLinks.map((link) => (
+                    <NavLink
+                      key={link.url}
+                      label={link.label}
+                      url={link.url}
+                      setIsAuthed={setIsAuthed}
+                    />
+                  ))
+                : Links.map((link) => (
+                    <NavLink key={link.url} label={link.label} url={link.url} />
+                  ))}
             </Stack>
           </Box>
         ) : null}
@@ -256,7 +299,10 @@ export default function Layout({ children }: Props) {
                   rightIcon={isLoading ? <Spinner /> : undefined}
                   variant={"solid"}
                   onClick={() =>
-                    handleAuth().finally(() => setIsLoading(false))
+                    handleAuth().finally(() => {
+                      if (isAuthed) setMethod(undefined);
+                      setIsLoading(false);
+                    })
                   }
                 >
                   {method === "LOGIN" ? "Log in" : "Sign up"}
