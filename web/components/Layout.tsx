@@ -4,24 +4,23 @@ import {
   Avatar,
   Box,
   Button,
-  Checkbox,
   Flex,
   FormControl,
   FormLabel,
   Heading,
   HStack,
   IconButton,
+  Image,
   Input,
   Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
+  Spinner,
   Stack,
   useColorModeValue,
   useDisclosure,
-  Image,
-  Text,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
@@ -57,6 +56,10 @@ export default function Layout({ children }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isAuthed, setIsAuthed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
   const [method, setMethod] = useState<"SIGNUP" | "LOGIN" | undefined>();
 
   // Check user auth
@@ -65,6 +68,18 @@ export default function Layout({ children }: Props) {
       setIsAuthed(true);
     } else setIsAuthed(false);
   }, []);
+
+  const handleAuth = async () => {
+    if (method === "LOGIN") {
+      await handleLogIn(email, password).then((res) => {
+        console.log(res);
+      });
+    } else if (method === "SIGNUP") {
+      await handleSignUp(email, password, fname, lname).then((res) => {
+        console.log(res);
+      });
+    }
+  };
 
   return (
     <>
@@ -168,35 +183,66 @@ export default function Layout({ children }: Props) {
                 <>
                   <FormControl id="email">
                     <FormLabel>Email address</FormLabel>
-                    <Input type="email" />
+                    <Input
+                      value={email}
+                      onChange={(e) => setEmail((e.target as any).value)}
+                      type="email"
+                    />
                   </FormControl>
                   <FormControl id="password">
                     <FormLabel>Password</FormLabel>
-                    <Input type="password" />
+                    <Input
+                      value={password}
+                      onChange={(e) => setPassword((e.target as any).value)}
+                      type="password"
+                    />
                   </FormControl>
                 </>
               ) : (
                 <>
                   <FormControl id="email">
                     <FormLabel>Email address</FormLabel>
-                    <Input type="email" />
+                    <Input
+                      value={email}
+                      onChange={(e) => setEmail((e.target as any).value)}
+                      type="email"
+                    />
                   </FormControl>
                   <FormControl id="password">
                     <FormLabel>Password</FormLabel>
-                    <Input type="password" />
+                    <Input
+                      value={password}
+                      onChange={(e) => setPassword((e.target as any).value)}
+                      type="password"
+                    />
                   </FormControl>
                   <FormControl id="fname">
                     <FormLabel>First Name</FormLabel>
-                    <Input type="text" />
+                    <Input
+                      value={fname}
+                      onChange={(e) => setFname((e.target as any).value)}
+                      type="text"
+                    />
                   </FormControl>
                   <FormControl id="lname">
                     <FormLabel>Last Name</FormLabel>
-                    <Input type="text" />
+                    <Input
+                      value={lname}
+                      onChange={(e) => setLname((e.target as any).value)}
+                      type="text"
+                    />
                   </FormControl>
                 </>
               )}
               <Stack spacing={6}>
-                <Button colorScheme={"blue"} variant={"solid"}>
+                <Button
+                  colorScheme={"blue"}
+                  rightIcon={isLoading ? <Spinner /> : undefined}
+                  variant={"solid"}
+                  onClick={() =>
+                    handleAuth().finally(() => setIsLoading(false))
+                  }
+                >
                   {method === "LOGIN" ? "Log in" : "Sign up"}
                 </Button>
               </Stack>
