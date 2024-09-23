@@ -86,7 +86,7 @@ export default function Product({
             colorScheme="green"
             variant="ghost"
             disabled={quantity > 0}
-            onClick={() => setSelected({ name, price, item_url, sku })}
+            onClick={() => setSelected({ name, price, item_url, sku, quantity })}
           >
             Purchase
           </Button>
