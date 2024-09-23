@@ -9,9 +9,6 @@ jobs:
   TF-Apply:
     name: 🏗️ Plan Infra
     runs-on: ubuntu-latest
-    outputs:
-      # https://unix.stackexchange.com/questions/281309/shell-syntax-how-to-correctly-use-to-break-lines
-      apigw: cd terraform && terraform output -raw api-route
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -35,13 +32,17 @@ jobs:
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
+      - name: Fetch API GW
+        id: APIGW
+        run: |
+          cd terraform
+          echo "NEXT_PUBLIC_APIGW=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
   web-deploy:
     name: 💫 Build
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      APIGW: ${{needs.TF-Apply.outputs.apigw}}
     needs: ["TF-Apply"]
     steps:
       - name: Check Out
@@ -64,7 +65,7 @@ jobs:
       - name: ⚗️ Write env variables
         run: |
           cd web
-          echo NEXT_PUBLIC_APIGW=$APIGW > .env
+          echo ${{steps.APIGW.outputs.APIGW}} > .env
 
       - name: 🔨 Build Project
         run: |
