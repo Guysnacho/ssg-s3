@@ -39,3 +39,9 @@ output "db-name" {
   description = "DB name"
   sensitive   = true
 }
+
+output "api-route" {
+  value       = module.gateway.api_endpoint
+  description = "API gateway url"
+  sensitive   = true
+}

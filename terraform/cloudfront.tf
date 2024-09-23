@@ -14,12 +14,12 @@ module "cloudfront" {
       origin_access_control    = "s3_oac"
       origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id # external OAС resource
       origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      custom_header = [
-        {
-          name  = "storefront-secret"
-          value = var.cloudfront_secret
-        }
-      ]
+      # custom_header = [
+      #   {
+      #     name  = "storefront-secret"
+      #     value = var.cloudfront_secret
+      #   }
+      # ]
       origin_shield = {
         enabled              = true
         origin_shield_region = "us-west-2"
@@ -31,12 +31,12 @@ module "cloudfront" {
       origin_access_control    = "s3_oac2"
       origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_oac.id
       origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      custom_header = [
-        {
-          name  = "storefront-secret"
-          value = var.cloudfront_secret
-        }
-      ]
+      # custom_header = [
+      #   {
+      #     name  = "storefront-secret"
+      #     value = var.cloudfront_secret
+      #   }
+      # ]
       origin_shield = {
         enabled              = true
         origin_shield_region = "us-west-2"
@@ -52,13 +52,14 @@ module "cloudfront" {
 
     # lambda_function_association = {
     #   # Valid keys: viewer-request, origin-request, viewer-response, origin-response
-    #   viewer-request = {
-    #     lambda_arn   = module.sale_lambda.lambda_function_qualified_arn
+    #   viewer-response = {
+    #     lambda_arn   = module.auth_lambda.lambda_function_qualified_arn
     #     include_body = true
     #   }
 
-    #   origin-request = {
-    #     lambda_arn = module.sale_lambda.lambda_function_qualified_arn
+    #   viewer-request = {
+    #     lambda_arn   = module.sale_lambda.lambda_function_qualified_arn
+    #     include_body = true
     #   }
     # }
 

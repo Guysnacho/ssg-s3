@@ -1,4 +1,5 @@
 import Product from "@/components/Product";
+import { AUTH_KEY } from "@/util/Auth";
 import { handlePurchase } from "@/util/Orders";
 import {
   Button,
@@ -9,52 +10,44 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Text,
 } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export type ProductProps = {
+  sku: string;
   name: string;
   price: number;
-  thumbnail: string;
+  item_url: string;
+  quantity: number;
 };
 
-const productList: ProductProps[] = [
-  {
-    name: "Bando Stone and The New World",
-    price: 45.15,
-    thumbnail:
-      "https://t2.genius.com/unsafe/728x0/https%3A%2F%2Fimages.genius.com%2Ff19320aae82a75396d97def01ae89ff3.1000x1000x1.png",
-  },
-  {
-    name: "alligator bites never heal - Doechii",
-    price: 30,
-    thumbnail:
-      "https://shop.capitolmusic.com/cdn/shop/files/DoechiiABNHLPInsert.png?v=1724951711&width=800",
-  },
-  {
-    name: "Nova - James Fauntleroy, Terrace Martin",
-    price: 30.99,
-    thumbnail:
-      "https://images.squarespace-cdn.com/content/v1/5699291fa976afc919dbca7d/a701db3b-83c1-457b-a892-0c46b0e6749c/Nova+Artwork.jpg?format=500w",
-  },
-];
-
 export default function Home() {
+  const [user, setUser] = useState<string | null>("");
   const [selected, setSelected] = useState<ProductProps | undefined>();
+  const [productList, setProductList] = useState<ProductProps[]>([]);
+
+  // Fetch Catalog
+  useEffect(() => {
+    setUser(localStorage.getItem(AUTH_KEY));
+    fetchCatalog(setProductList);
+  }, []);
+
   return (
     <div className={`container mx-auto ${inter.className}`}>
-      {selected ? <p>Selected Item - {selected.name}</p> : undefined}
       <div className="flex flex-wrap w-4/5 mx-auto justify-evenly gap-5">
         {productList.map((item) => (
           <Product
             key={item.name}
             setSelected={setSelected}
+            sku={item.sku}
             name={item.name}
             price={item.price}
-            thumbnail={item.thumbnail}
+            item_url={item.item_url}
+            quantity={item.quantity}
           />
         ))}
       </div>
@@ -78,7 +71,7 @@ export default function Home() {
             <Button
               colorScheme="green"
               onClick={() => {
-                handlePurchase(selected!);
+                handlePurchase(user ?? "", selected!);
                 setSelected(undefined);
               }}
             >
@@ -90,3 +83,17 @@ export default function Home() {
     </div>
   );
 }
+
+const fetchCatalog = async (
+  setProductList: Dispatch<SetStateAction<ProductProps[]>>
+) => {
+  fetch(`${process.env.NEXT_PUBLIC_APIGW}/catalog`)
+    .then(async (res) => {
+      const body = await res.json();
+      setProductList(body);
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("Failed to fetch catalog");
+    });
+};

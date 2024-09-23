@@ -39,9 +39,11 @@ const handler = async (event, context, callback) => {
   console.log("Successfully fetched DB creds ✨");
 
   if (payload.method == "LOGIN") {
-    return handleLogin(payload.email, payload.password, creds);
-  } else if (payload.method == "SIGNUP") {
-    return await handleSignUp(payload, creds);
+    const res = await handleLogin(payload.email, payload.password, creds);
+    return JSON.stringify(res);
+  } else {
+    const res = await handleSignUp(payload, creds);
+    return JSON.stringify(res);
   }
 };
 
@@ -51,26 +53,32 @@ const handler = async (event, context, callback) => {
  * @returns {{ method: "LOGIN" | "SIGNUP", email: string, password: string, fname: string, lname: string, } | undefined}
  */
 const isValidPayload = (event) => {
+  let payload;
+  try {
+    payload = JSON.parse(event?.body);
+  } catch (error) {
+    throw new Error("Invalid payload");
+  }
   if (
-    event?.method == "SIGNUP" &&
-    event?.email &&
-    event?.email.length > 0 &&
-    event?.password &&
-    event?.password.length > 0 &&
-    event?.fname &&
-    event?.fname.length > 0 &&
-    event?.lname &&
-    event?.lname.length > 0
+    payload.method == "SIGNUP" &&
+    payload.email &&
+    payload.email.length > 0 &&
+    payload.password &&
+    payload.password.length > 0 &&
+    payload.fname &&
+    payload.fname.length > 0 &&
+    payload.lname &&
+    payload.lname.length > 0
   ) {
-    return event;
+    return payload;
   } else if (
-    event?.method == "LOGIN" &&
-    event?.email &&
-    event?.email.length > 0 &&
-    event?.password &&
-    event?.password.length > 0
+    payload.method == "LOGIN" &&
+    payload.email &&
+    payload.email.length > 0 &&
+    payload.password &&
+    payload.password.length > 0
   ) {
-    return event;
+    return payload;
   } else return undefined;
 };
 
@@ -80,17 +88,47 @@ const isValidPayload = (event) => {
  * @param password {string}
  * @param {{username: string, password: string}} creds
  */
-const handleLogin = (email, password, creds) => {
+const handleLogin = async (email, password, creds) => {
   console.log("Handling login");
 
-  return {
-    statusCode: 201,
-    statusDescription: "user created",
-    headers: {
-      "cloudfront-functions": { value: "generated-by-CloudFront-Functions" },
-      location: { value: "https://aws.amazon.com/cloudfront/" },
+  // Build a client
+  const sql = postgres({
+    database: "storefront",
+    user: creds.username,
+    pass: creds.password,
+    host: process.env.db_host,
+    connection: {
+      application_name: process.env.AWS_LAMBDA_FUNCTION_NAME,
     },
-  };
+  });
+
+  const res = await sql`SELECT * from public.member
+  WHERE email = ${email} AND password = ${password}`
+    .then((res) => {
+      console.debug(res);
+      if (res.length == 0) {
+        return {
+          statusCode: 404,
+          statusDescription: "user not found",
+        };
+      } else {
+        return {
+          statusCode: 201,
+          statusDescription: "user logged in",
+          body: { id: res[0].id },
+        };
+      }
+    })
+    .catch((err) => {
+      console.error("Ran into an issue signing you up");
+      console.error(err);
+      return {
+        statusCode: 500,
+        statusDescription: err.message,
+      };
+    });
+
+  return res;
 };
 
 /**
@@ -119,10 +157,11 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
     returning *
     `
     .then((res) => {
+      console.log("Successfully signed up");
       return {
         statusCode: 201,
-        id: res[0].id,
         statusDescription: "user created",
+        body: { id: res[0].id },
       };
     })
     .catch((err) => {
@@ -130,11 +169,10 @@ const handleSignUp = async ({ email, password, fname, lname }, creds) => {
       console.error(err);
       return {
         statusCode: 500,
-        error: err.message,
+        statusDescription: err.message,
       };
     });
 
-  if (res.error) throw new Error(res.error);
   return res;
 };
 

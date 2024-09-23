@@ -1,17 +1,17 @@
-data "aws_caller_identity" "auth_current" {}
+data "aws_caller_identity" "catalog_current" {}
 
-data "archive_file" "auth_package" {
+data "archive_file" "catalog_package" {
   type        = "zip"
-  source_dir  = "${path.module}/lib/auth"
-  output_path = "${path.module}/lib/auth/deployment_package.zip"
+  source_dir  = "${path.module}/lib/catalog"
+  output_path = "${path.module}/lib/catalog/deployment_package.zip"
   excludes    = [".gitignore", "README.md", "testbench.js", "package-lock.json", "deployment_package.zip"]
 }
 
-module "auth_lambda" {
+module "catalog_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.9.0"
 
-  function_name      = "storefront-auth-lambda"
+  function_name      = "storefront-catalog-lambda"
   description        = "Lambda for handling user login and signup requests"
   runtime            = "nodejs20.x"
   handler            = "index.handler"
@@ -19,10 +19,10 @@ module "auth_lambda" {
   authorization_type = "NONE"
   timeout            = 10
   # Without a zipped package
-  # source_path            = "${path.module}/lib/auth/auth.js"
-  # source_path  = "${path.module}/lib/auth/"
+  # source_path            = "${path.module}/lib/catalog/catalog.js"
+  # source_path  = "${path.module}/lib/catalog/"
 
-  local_existing_package = data.archive_file.auth_package.output_path
+  local_existing_package = data.archive_file.catalog_package.output_path
   package_type           = "Zip"
   create_package         = false
 
@@ -92,6 +92,6 @@ module "auth_lambda" {
 
 # Allows you to add the lambda to VPC
 # resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
-#   role       = module.auth_lambda.lambda_role_name
+#   role       = module.catalog_lambda.lambda_role_name
 #   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 # }

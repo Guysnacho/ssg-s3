@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "postgres": "^3.4.4"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145"
+  },
+  "name": "catalog",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Catalog Lambda Package",
+  "main": "index.js",
+  "license": "ISC"
+}

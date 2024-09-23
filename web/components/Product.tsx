@@ -14,7 +14,9 @@ import { Dispatch, SetStateAction } from "react";
 export default function Product({
   name,
   price,
-  thumbnail,
+  item_url,
+  sku,
+  quantity,
   setSelected,
 }: {
   setSelected: Dispatch<SetStateAction<ProductProps | undefined>>;
@@ -45,7 +47,7 @@ export default function Product({
             pos: "absolute",
             top: 5,
             left: 0,
-            backgroundImage: `url(${thumbnail})`,
+            backgroundImage: item_url ? `url(${item_url})` : undefined,
             filter: "blur(15px)",
             zIndex: -1,
           }}
@@ -60,7 +62,7 @@ export default function Product({
             height={230}
             width={282}
             objectFit={"cover"}
-            src={thumbnail}
+            src={item_url}
             alt="#"
           />
         </Box>
@@ -79,10 +81,12 @@ export default function Product({
           <Text fontWeight={800} fontSize={"xl"}>
             ${price}
           </Text>
+          <Text>Left in Stock: {quantity}</Text>
           <Button
             colorScheme="green"
             variant="ghost"
-            onClick={() => setSelected({ name, price, thumbnail })}
+            disabled={quantity > 0}
+            onClick={() => setSelected({ name, price, item_url, sku, quantity })}
           >
             Purchase
           </Button>

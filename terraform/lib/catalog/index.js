@@ -13,11 +13,6 @@ const handler = async (event, context, callback) => {
   console.debug("Payload recieved");
   console.debug(event);
 
-  const payload = isValidPayload(event);
-
-  // If bad request recieved
-  if (!payload) throw new Error("bad request");
-
   const secret = await fetchDBSecret();
 
   if (!secret || secret == "")
@@ -37,31 +32,9 @@ const handler = async (event, context, callback) => {
     throw new Error("Invalid db creds");
   }
   console.log("Successfully fetched DB creds ✨");
-  const res = await handleSale(payload, creds);
-  return JSON.stringify(res);
-};
 
-/**
- * Request validation
- * @param {*} event
- * @returns {{ user_id: string; quantity: number; sku: string; } | undefined}
- */
-const isValidPayload = (event) => {
-  let payload;
-  try {
-    payload = JSON.parse(event?.body);
-  } catch (error) {
-    throw new Error("Invalid payload");
-  }
-  if (
-    payload.user_id &&
-    payload.user_id !== "" &&
-    payload.sku &&
-    payload.sku !== "" &&
-    payload.quantity
-  ) {
-    return payload;
-  } else return undefined;
+  const res = await fetchCatalog(creds);
+  return res;
 };
 
 const fetchDBSecret = async () => {
@@ -97,12 +70,11 @@ const fetchDBSecret = async () => {
 };
 
 /**
- * Handle our sale
- * @param {{ user_id: string; quantity: number; sku: string; }} payload
+ * Fetch the full catalog of the store
  * @param {{username: string, password: string}} creds
  */
-const handleSale = async ({ user_id, sku, quantity }, creds) => {
-  console.log("Handling sale");
+const fetchCatalog = async (creds) => {
+  console.log("Fetching");
 
   // Build a client
   const sql = postgres({
@@ -116,18 +88,9 @@ const handleSale = async ({ user_id, sku, quantity }, creds) => {
   });
 
   // Perform our insert and select the price
-  const res = await sql`INSERT into public.order
-    (user_id, sku, quantity) VALUES
-    (${user_id}, ${sku}, ${quantity})
- 
-    returning *
-    `
+  const res = await sql`SELECT * from public.stock`
     .then((res) => {
-      return {
-        statusCode: 201,
-        sku: res[0].id,
-        statusDescription: "sale complete",
-      };
+      return res;
     })
     .catch((err) => {
       console.error("Ran into an issue during the sale");

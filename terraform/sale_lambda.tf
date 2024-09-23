@@ -26,8 +26,8 @@ module "sale_lambda" {
   package_type           = "Zip"
   create_package         = false
 
-  architectures = ["arm64"] # Arm is cheeaaaper
-  # lambda_at_edge     = true
+  architectures  = ["arm64"] # Arm is cheeaaaper
+  # lambda_at_edge = true
 
   # Environmental variables needed to log into database
   environment_variables = {
@@ -36,7 +36,6 @@ module "sale_lambda" {
     # Not an output of a normal RDS instance
     # db_password = module.db.cluster_master_password
     db_secret = module.db.db_instance_master_user_secret_arn
-    secret    = var.cloudfront_secret
     # found this by running `terraform state show insert_module_here`
     # Replace `insert_module_here` with your specific instance from a `terraform state list`
   }
@@ -82,13 +81,13 @@ module "sale_lambda" {
       resources = ["*"]
     }
   }
-  # allowed_triggers = {
-  #   // Allows any invoker through the API Gateway
-  #   APIGatewayAny = {
-  #     service    = "apigateway"
-  #     source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*/*/*"
-  #   }
-  # }
+  allowed_triggers = {
+    # Allows any invoker through the API Gateway
+    APIGatewayAny = {
+      service    = "apigateway"
+      source_arn = "arn:aws:execute-api:us-west-2:${data.aws_caller_identity.current.account_id}:*/*/*/*"
+    }
+  }
 }
 
 # Allows you to add the lambda to VPC
