@@ -2,9 +2,6 @@
   "dependencies": {
     "postgres": "^3.4.4"
   },
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.145"
-  },
   "name": "sale",
   "type": "module",
   "version": "1.0.0",

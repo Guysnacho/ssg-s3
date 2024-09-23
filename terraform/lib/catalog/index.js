@@ -5,9 +5,7 @@ import {
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
 import postgres from "postgres";
-// import { Handler } from "aws-lambda";
 
-/** @type {Handler} */
 const handler = async (event, context, callback) => {
   console.log(`Starting ${context?.functionName} invocation`);
   console.debug("Payload recieved");
