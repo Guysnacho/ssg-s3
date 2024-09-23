@@ -32,7 +32,7 @@ jobs:
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
     outputs:
-      apigw: "$(terraform output -raw api-route)"
+      apigw: cd terraform && terraform output -raw api-route
   web-deploy:
     name: 💫 Deploy
     runs-on: ubuntu-latest
