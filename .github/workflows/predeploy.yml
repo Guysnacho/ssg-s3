@@ -68,7 +68,7 @@ jobs:
       - name: ⚗️ Write env variables
         run: |
           cd web
-          echo ${{needs.TF-Apply.outputs.apigw}} > .env
+          echo "NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}" > .env
 
       - name: 🔨 Build Project
         run: |
