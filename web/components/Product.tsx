@@ -16,6 +16,7 @@ export default function Product({
   price,
   item_url,
   sku,
+  quantity,
   setSelected,
 }: {
   setSelected: Dispatch<SetStateAction<ProductProps | undefined>>;
@@ -80,9 +81,11 @@ export default function Product({
           <Text fontWeight={800} fontSize={"xl"}>
             ${price}
           </Text>
+          <Text>Left in Stock: {quantity}</Text>
           <Button
             colorScheme="green"
             variant="ghost"
+            disabled={quantity > 0}
             onClick={() => setSelected({ name, price, item_url, sku })}
           >
             Purchase
