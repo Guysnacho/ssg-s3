@@ -36,7 +36,6 @@ export default function Home() {
 
   return (
     <div className={`container mx-auto ${inter.className}`}>
-      {selected ? <p>Selected Item - {selected.name}</p> : undefined}
       <div className="flex flex-wrap w-4/5 mx-auto justify-evenly gap-5">
         {productList.map((item) => (
           <Product

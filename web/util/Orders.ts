@@ -8,11 +8,14 @@ export const handlePurchase = (user_id: string, product: ProductProps) => {
   console.debug(`Purchasing ${product.name} for $${product.price}`);
   fetch(`${process.env.NEXT_PUBLIC_APIGW}/sale`, {
     method: "POST",
-    body: JSON.stringify({ quantity: 1, sku: product.sku, user_id }),
+    body: `{ "quantity": 1, "sku": "${product.sku}", "user_id": "${user_id}" }`,
   })
     .then(async (res) => {
-      const body = await res.json();
-      console.debug(body);
+      if (!res.ok) {
+        throw new Error(
+          "Failed to complete your purchase. Please try again later."
+        );
+      } else alert("Thank you for your purchase!");
     })
     .catch((err) => {
       console.error(err);
