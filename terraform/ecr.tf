@@ -17,7 +17,7 @@ module "public_ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
   repository_name = local.ecr_name
-  repository_type = "private"
+  repository_type = "public"
 
   repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
   repository_lifecycle_policy = jsonencode({
