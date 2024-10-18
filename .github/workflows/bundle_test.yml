@@ -81,13 +81,22 @@ jobs:
           aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2
           aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}-failover/ --region us-west-2
 
-      - name: 🐳 Build and Upload Image
+      - name: 🐳 Build Image
         uses: docker/build-push-action@v6
         with:
           context: ./web/
           file: ./web/Dockerfile
           push: false # if we wanted to push the image to DockerHub
           tags: user/app:latest
-          cache-to: user/app:cache
+          # cache-to: type=local,dest=user/app:cache
           outputs: type=local,dest=./alpine_storefront
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
+        continue-on-error: true
+
+      - name: 🌩️ Upload Image
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          overwrite: true
+          name: storefront_img
+          path: ./web/alpine_storefront
