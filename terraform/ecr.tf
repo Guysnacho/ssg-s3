@@ -24,11 +24,11 @@ module "public_ecr" {
 
   public_repository_catalog_data = {
     description       = "Docker container for some things"
-    about_text        = file("${path.module}/fixtures/ecr_assets/ABOUT.md")
-    usage_text        = file("${path.module}/fixtures/ecr_assets/USAGE.md")
+    about_text        = file("${path.module}/ecr_assets/ABOUT.md")
+    usage_text        = file("${path.root}/ecr_assets/USAGE.md")
     operating_systems = ["Linux"]
     architectures     = ["x86"]
-    logo_image_blob   = filebase64("${path.module}/fixtures/ecr_assets/clowd.png")
+    logo_image_blob   = filebase64("${path.module}/ecr_assets/clowd.png")
   }
 
   tags = local.ecr_tags
@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "registry" {
     }
 
     actions   = ["ecr:ReplicateImage"]
-    resources = [module.ecr.repository_arn]
+    resources = [module.public_ecr.repository_arn]
   }
 
   #   Callers can create repositories
