@@ -94,7 +94,7 @@ jobs:
 
       - name: Look around
         run: |
-          ls -E
+          ls -l
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
