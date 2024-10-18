@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: "export",
+  output: process.env.STATIC ? "export" : "standalone",
   images: {
-    unoptimized: true,
+    unoptimized: process.env.STATIC ? true : false,
   },
 };
 

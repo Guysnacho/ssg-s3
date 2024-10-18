@@ -4,18 +4,17 @@
 
 This repo is to help me actually build this AWS course. ~Shouldn't be too hard~ This has and will continue to be a learning experience. Follow along, check the releases, make a fork, go crazy, but check the [Project Home](https://blackbelt-init.notion.site/) for more details. ✨
 
-## Initial Plan
-
-### Monorepo
+## Project Layout
 
 - Terraform Package
 - Web package
-- Github workflows with Smart builds
-  - Applies after grep on repo
-  - If changes in AWS package, apply tf apply first
-  - Put [plan output](https://github.com/marketplace/actions/github-script#welcome-a-first-time-contributor) in PR
-  - Deploy static package
-- Look into [atmos](https://atmos.tools/) for environments
+- Github workflows
+  - Applies terraform infra changes after commits to main branch
+  - Bundles our app into static site files and a Docker image
+  - Deploys uploads static site to S3 to be served by CloudFront
+  - Uploads our Docker Image to the run context
+  - Updates an SSM parameter's value to this artifact's URL
+    - Important note - by default, an artifact upload will only live for 90 days. Keep this in mind if you want to roll changes back to a given date past that.
 
 ### Local Setup
 
@@ -25,5 +24,6 @@ This repo is to help me actually build this AWS course. ~Shouldn't be too hard~ 
 4. Build starter [Next](https://nextjs.org/) site
    1. [Configure ssg export](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports)
 5. Setup bucket, cloudfront, provider, outputs, whatever else locally
-6. Setup workflow
-7. Make it smart
+6. Add GitHub action secrets
+7. Test workflows
+8. Sip water
