@@ -45,3 +45,9 @@ output "api-route" {
   description = "API gateway url"
   sensitive   = true
 }
+
+output "ecr-push-url" {
+  value       = module.public_ecr.repository_url
+  description = "ECR Repository URL"
+  sensitive   = true
+}

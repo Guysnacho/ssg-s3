@@ -20,7 +20,21 @@ module "public_ecr" {
   repository_type = "private"
 
   repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
-  create_registry_policy            = true
+  repository_lifecycle_policy = jsonencode({
+    "rules" : [
+      {
+        "rulePriority" : 1,
+        "description" : "Rule 1",
+        "selection" : {
+          "tagStatus" : "tagged",
+          "tagPatternList" : ["storefront/app*"],
+          "countType" : "imageCountMoreThan",
+          "countNumber" : 3
+        },
+        "action" : {
+          "type" : "expire"
+        }
+  }] })
 
   public_repository_catalog_data = {
     description       = "Docker container for some things"
