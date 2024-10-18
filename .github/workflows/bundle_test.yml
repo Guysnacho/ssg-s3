@@ -93,7 +93,13 @@ jobs:
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
       - name: Move Image to copyable location
-        run: sudo cp ./alpine_storefront /home/
+        run: |
+          stat ./alpine_storefront
+          ls -l
+          sudo cp -r ./alpine_storefront /home/
+          ls -l /home/
+          ls -l /home/alpine_storefront
+        continue-on-error: true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
