@@ -27,7 +27,7 @@ module "public_ecr" {
         "description" : "Rule 1",
         "selection" : {
           "tagStatus" : "tagged",
-          "tagPatternList" : ["storefront/app*"],
+          "tagPatternList" : ["app*"],
           "countType" : "imageCountMoreThan",
           "countNumber" : 3
         },
