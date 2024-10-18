@@ -99,7 +99,7 @@ jobs:
           push: true # if we wanted to push the image to DockerHub or a local registry
           tags: storefront/app:latest
           # cache-to: type=local,dest=user/app:cache
-          outputs: type=local,dest=./alpine_storefront,type=docker,dest=${{needs.TF-Apply.outputs.registry_url}}
+          outputs: type=local,dest=./alpine_storefront,type=docker,dest=${{needs.TF-Apply.outputs.registry_url}}:latest
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
       - name: Move Image to copyable location
