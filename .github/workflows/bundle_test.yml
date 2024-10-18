@@ -101,6 +101,6 @@ jobs:
         id: artifact-upload-step
         with:
           name: storefront_image
-          path: /alpine_storefront
+          path: ./alpine_storefront
           overwrite: true
           if-no-files-found: error
