@@ -1,9 +1,9 @@
 locals {
-  name = "ecr-ex-${replace(basename(path.cwd), "_", "-")}"
+  ecr_name = "ecr-ex-${replace(basename(path.cwd), "_", "-")}"
 
   account_id = data.aws_caller_identity.current.account_id
 
-  tags = {
+  ecr_tags = {
     Name       = local.name
     Repository = "https://github.com/terraform-aws-modules/terraform-aws-ecr"
   }
@@ -16,7 +16,7 @@ data "aws_ssm_parameter" "image_url" {
 module "public_ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
-  repository_name = local.name
+  repository_name = local.ecr_name
   repository_type = "private"
 
   repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
@@ -31,7 +31,7 @@ module "public_ecr" {
     logo_image_blob   = filebase64("${path.module}/fixtures/ecr_assets/clowd.png")
   }
 
-  tags = local.tags
+  tags = local.ecr_tags
 }
 
 ################################################################################
