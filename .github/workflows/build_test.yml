@@ -99,25 +99,25 @@ jobs:
           push: true # if we wanted to push the image to DockerHub or a local registry
           tags: storefront/app:latest
           # cache-to: type=local,dest=user/app:cache
-          outputs: type=local,dest=./alpine_storefront,type=docker,dest=${{needs.TF-Apply.outputs.registry_url}}:latest
+          outputs: type=docker,dest=${{needs.TF-Apply.outputs.registry_url}}:latest # type=local,dest=./alpine_storefront,
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
-      - name: Move Image to copyable location
-        run: |
-          stat ./alpine_storefront
-          tar -zcf alpine_storefront.tar.gz ./alpine_storefront
-          sudo cp ./alpine_storefront.tar.gz /home/
+      # - name: Move Image to copyable location
+      #   run: |
+      #     stat ./alpine_storefront
+      #     tar -zcf alpine_storefront.tar.gz ./alpine_storefront
+      #     sudo cp ./alpine_storefront.tar.gz /home/
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        id: artifact-upload-step
-        with:
-          name: storefront_image
-          path: /home/alpine_storefront.tar.gz
-          overwrite: true
-          if-no-files-found: error
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v4
+      #   id: artifact-upload-step
+      #   with:
+      #     name: storefront_image
+      #     path: /home/alpine_storefront.tar.gz
+      #     overwrite: true
+      #     if-no-files-found: error
 
-      - name: Echo artifact url and send to SSM parameter
-        run: |
-          echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}}
-          aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String
+      # - name: Echo artifact url and send to SSM parameter
+      #   run: |
+      #     echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}}
+      #     aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String
