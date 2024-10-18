@@ -1,8 +1,7 @@
 # Full disclosure, this modules a little overwhelming
 
 locals {
-  region = "eu-west-1"
-  name   = "ex-${basename(path.cwd)}"
+  name = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
   container_port = 80
@@ -21,10 +20,16 @@ module "ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws//modules/cluster"
   version = "5.11.4"
 
+  # create = true
+
   cluster_name = local.name
 
   # Capacity provider - autoscaling groups
-  default_capacity_provider_use_fargate = false
+  default_capacity_provider_use_fargate = true
+  create_task_exec_iam_role             = true
+  create_task_exec_policy               = true
+  task_exec_iam_role_name               = "ecs_task_execution_role"
+
   autoscaling_capacity_providers = {
     # On-demand instances, opting for spot instances for lower costs
     # ex_1 = {
@@ -91,12 +96,14 @@ module "ecs_service" {
     # Storage volume, when given an empty map, our volume lives in memory
     my-vol = {}
   }
+  # launch_type = "FARGATE"
   launch_type = "EC2"
 
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
       image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
+      # image = "public.ecr.aws/docker/library/alpine:edge"
       port_mappings = [
         {
           name          = local.container_name
