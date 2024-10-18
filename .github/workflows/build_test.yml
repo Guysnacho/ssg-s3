@@ -1,10 +1,10 @@
 on:
-  pull_request:
+  push:
     branches:
-      - "*"
+      - "33-Scaffold-and-use-ECR"
 permissions:
   pull-requests: write
-name: 🌱 Build Test 🌿
+name: ✨ Build Test 🧐
 jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
