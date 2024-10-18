@@ -11,6 +11,7 @@ jobs:
     # https://stackoverflow.com/questions/59175332/using-output-from-a-previous-job-in-a-new-one-in-a-github-action
     outputs:
       apigw: ${{steps.APIGW.outputs.NEXT_PUBLIC_APIGW}}
+      registry_url: ${{steps.APIGW.outputs.REGISTRY_URL}}
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -39,6 +40,7 @@ jobs:
         run: |
           cd terraform
           echo "NEXT_PUBLIC_APIGW=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
+          echo "REGISTRY_URL=$(terraform output -raw ecr-push-url)" >> $GITHUB_OUTPUT
   web-deploy:
     name: 💫 Deploy
     runs-on: ubuntu-latest
@@ -85,10 +87,10 @@ jobs:
         with:
           context: ./web/
           file: ./web/Dockerfile
-          push: false # if we wanted to push the image to DockerHub or a local registry
-          tags: user/app:latest
+          push: true # if we wanted to push the image to DockerHub or a local registry
+          tags: storefront/app:latest
           # cache-to: type=local,dest=user/app:cache
-          outputs: type=local,dest=./alpine_storefront
+          outputs: type=local,dest=./alpine_storefront,type=docker,dest=${{needs.TF-Apply.outputs.registry_url}}
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
       - name: Move Image to copyable location
