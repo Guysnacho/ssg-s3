@@ -96,17 +96,16 @@ jobs:
         run: |
           stat ./alpine_storefront
           ls -l
-          sudo cp -r ./alpine_storefront /home/
-          ls -l /home/
+          tar -zcvf alpine_storefront.tar.gz ./alpine_storefront
+          sudo cp ./alpine_storefront.tar.gz /home/
           ls -l /home/alpine_storefront
-        continue-on-error: true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         id: artifact-upload-step
         with:
           name: storefront_image
-          path: /home/alpine_storefront
+          path: /home/alpine_storefront.tar.gz
           overwrite: true
           if-no-files-found: error
 
