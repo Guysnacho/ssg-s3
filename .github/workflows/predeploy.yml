@@ -70,7 +70,12 @@ jobs:
           cd web
           echo "NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}" > .env
 
-      - name: 🔨 Build Project
+      - name: 🔨 Build Static Project
+        run: |
+          cd web
+          npm run build
+
+      - name: 🐳 Build Image
         run: |
           cd web
           npm run build

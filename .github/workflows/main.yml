@@ -47,8 +47,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: ["TF-Apply"]
     steps:
-      - name: Check Out
-        uses: actions/checkout@v4
+      - name: Set up Docker Buildx and Checkout
+        uses: docker/setup-buildx-action@v3
       - name: Use Node.js
         uses: actions/setup-node@v4
       - name: Configure AWS Credentials
@@ -68,7 +68,12 @@ jobs:
           cd web
           echo "NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}" > .env
 
-      - name: 🔨 Build Project
+      - name: 🔨 Build Static Project
+        run: |
+          cd web
+          npm run build
+
+      - name: 🐳 Build Image
         run: |
           cd web
           npm run build
@@ -77,3 +82,11 @@ jobs:
         run: |
           aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2
           aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}-failover/ --region us-west-2
+
+      - name: 🌩️ Upload Image
+        uses: docker/build-push-action@v6
+        with:
+          file: ./web/Dockerfile
+          push: false # if we wanted to push the image to DockerHub
+          add-hosts: 3000:3000
+          tags: user/app:latest
