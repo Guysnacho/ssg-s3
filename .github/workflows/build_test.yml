@@ -41,7 +41,7 @@ jobs:
         run: |
           cd terraform
           echo "NEXT_PUBLIC_APIGW=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
-          echo "REGISTRY_URL=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
+          echo "REGISTRY_URL=$(terraform output -raw ecr-push-url)" >> $GITHUB_OUTPUT
   web-deploy:
     name: 💫 Deploy
     runs-on: ubuntu-latest
