@@ -47,7 +47,7 @@ output "api-route" {
 }
 
 output "ecr-push-url" {
-  value       = module.public_ecr.repository_url
+  value       = module.ecr.repository_url
   description = "ECR Repository URL"
   sensitive   = true
 }

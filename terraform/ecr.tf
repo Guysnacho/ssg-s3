@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
 locals {
   ecr_name = "ecr-ex-${replace(basename(path.cwd), "_", "-")}"
 
@@ -13,7 +17,7 @@ data "aws_ssm_parameter" "image_url" {
   name = "ecr_artifact_url"
 }
 
-module "public_ecr" {
+module "ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
   repository_name = local.ecr_name
@@ -61,7 +65,7 @@ data "aws_iam_policy_document" "registry" {
     }
 
     actions   = ["ecr:ReplicateImage"]
-    resources = [module.public_ecr.repository_arn]
+    resources = [module.ecr.repository_arn]
   }
 
   #   Callers can create repositories
