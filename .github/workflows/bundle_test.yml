@@ -93,7 +93,7 @@ jobs:
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
       - name: Move Image to copyable location
-        run: cp ./alpine_storefront /home/alpine_storefront
+        run: sudo cp ./alpine_storefront /home/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -103,3 +103,8 @@ jobs:
           path: /home/alpine_storefront
           overwrite: true
           if-no-files-found: error
+
+      - name: Echo artifact url and send to SSM parameter
+        run: |
+          echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}} >> $GITHUB_OUTPUT
+          aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String
