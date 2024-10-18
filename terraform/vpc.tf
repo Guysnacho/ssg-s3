@@ -27,12 +27,13 @@ module "vpc" {
   azs              = local.azs
   public_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
   private_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 3)]
-  database_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 6)]
+  # database_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 6)]
 
   enable_dns_hostnames                   = true
   enable_dns_support                     = true
   create_database_internet_gateway_route = false
   create_database_nat_gateway_route      = false
-  enable_nat_gateway                     = false
+  enable_nat_gateway                     = true
+  single_nat_gateway                     = true
   enable_vpn_gateway                     = false
 }
