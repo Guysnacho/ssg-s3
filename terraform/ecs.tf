@@ -78,19 +78,20 @@ module "ecs_service" {
 
   # Task Definition
   requires_compatibilities = ["EC2"]
-  capacity_provider_strategy = {
-    # On-demand instances
-    # ex_1 = {
-    #   capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex_2"].name
-    #   weight            = 1
-    #   base              = 1
-    # }
-  }
+  # capacity_provider_strategy = {
+  #   On-demand instances
+  #   ex_1 = {
+  #     capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex_2"].name
+  #     weight            = 1
+  #     base              = 1
+  #   }
+  # }
 
   volume = {
     # Storage volume, when given an empty map, our volume lives in memory
     my-vol = {}
   }
+  launch_type = "EC2"
 
   # Container definition(s)
   container_definitions = {
@@ -156,7 +157,7 @@ module "ecs_service" {
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
 data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
 }
 
 module "alb" {
@@ -176,6 +177,8 @@ module "alb" {
   # Security Group
   security_group_ingress_rules = {
     all_http = {
+      # Allow all tcp traffic in through port 80
+      # This is definitely bad, we never want our packaets traveling the internet in plain text
       from_port   = 80
       to_port     = 80
       ip_protocol = "tcp"
@@ -184,6 +187,7 @@ module "alb" {
   }
   security_group_egress_rules = {
     all = {
+      # Allow all ipv4 traffic out
       ip_protocol = "-1"
       cidr_ipv4   = module.vpc.vpc_cidr_block
     }
@@ -209,8 +213,8 @@ module "alb" {
       load_balancing_cross_zone_enabled = true
 
       health_check = {
-        # enabled             = true
-        enabled             = false
+        # Disabled until we get a good image running
+        enabled             = true
         healthy_threshold   = 5
         interval            = 30
         matcher             = "200"
@@ -253,6 +257,7 @@ module "autoscaling" {
     # }
     # Spot instances
     ex_2 = {
+      # Smallest instance type under free tier
       instance_type              = "t2.micro"
       use_mixed_instances_policy = true
       mixed_instances_policy = {
@@ -301,10 +306,13 @@ module "autoscaling" {
   iam_role_name               = local.name
   iam_role_description        = "ECS role for ${local.name}"
   iam_role_policies = {
+    # Default Service Role Policy https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonEC2ContainerServiceforEC2Role.html
     AmazonEC2ContainerServiceforEC2Role = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-    AmazonSSMManagedInstanceCore        = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    # Enable System Manager Functionality https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonSSMManagedInstanceCore.html
+    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 
+  # Our autoscaling group wills away from the open internet
   vpc_zone_identifier = module.vpc.private_subnets
   health_check_type   = "EC2"
   min_size            = 1
