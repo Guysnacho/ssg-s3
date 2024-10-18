@@ -92,15 +92,14 @@ jobs:
           outputs: type=local,dest=./alpine_storefront
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
-      - name: Look around
-        run: |
-          ls -l
+      - name: Move Image to copyable location
+        run: cp ./alpine_storefront /home/alpine_storefront
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         id: artifact-upload-step
         with:
           name: storefront_image
-          path: ./alpine_storefront
+          path: /home/alpine_storefront
           overwrite: true
           if-no-files-found: error
