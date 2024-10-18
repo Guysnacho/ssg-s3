@@ -91,4 +91,3 @@ jobs:
           cache-to: user/app:cache
           outputs: type=local,dest=./alpine_storefront
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
-          secret-files: ./web/.env
