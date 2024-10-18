@@ -76,20 +76,19 @@ jobs:
           cd web
           STATIC=1 npm run build
 
-      - name: 🐳 Build Image
-        run: |
-          cd web
-          npm run build
-
       - name: 🚀 Upload Package
         run: |
           aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}/ --region us-west-2
           aws s3 sync ./web/out s3://${{ secrets.S3_BUCKET }}-failover/ --region us-west-2
 
-      - name: 🌩️ Upload Image
+      - name: 🐳 Build and Upload Image
         uses: docker/build-push-action@v6
         with:
           file: ./web/Dockerfile
           push: false # if we wanted to push the image to DockerHub
           add-hosts: 3000:3000
           tags: user/app:latest
+          cache-to: user/app:cache
+          outputs: type=local,dest=./alpine_storefront
+          secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
+          secret-files: ./web/.env
