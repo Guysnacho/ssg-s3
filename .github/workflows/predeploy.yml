@@ -31,7 +31,7 @@ jobs:
       - name: 🏗️ Terraform Plan
         run: |
           cd terraform
-          terraform plan -var="bucket-name=${{ secrets.S3_BUCKET }}" -var="db-name=${{ secrets.DB_NAME }}" -var="db-username=${{ secrets.DB_USER }}" # -auto-approve
+          terraform plan -refresh-only -var="bucket-name=${{ secrets.S3_BUCKET }}" -var="db-name=${{ secrets.DB_NAME }}" -var="db-username=${{ secrets.DB_USER }}" # -auto-approve
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
@@ -50,6 +50,8 @@ jobs:
     steps:
       - name: Check Out
         uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Use Node.js
         uses: actions/setup-node@v4
       - name: Configure AWS Credentials
@@ -58,8 +60,7 @@ jobs:
           aws-region: us-west-2
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+
       - name: 😪 Installing Dependencies
         run: |
           cd web
@@ -73,9 +74,22 @@ jobs:
       - name: 🔨 Build Static Project
         run: |
           cd web
-          npm run build
+          STATIC=1 npm run build
 
       - name: 🐳 Build Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web/
+          file: ./web/Dockerfile
+          push: false # if we wanted to push the image to DockerHub or a local registry
+          tags: user/app:latest
+          # cache-to: type=local,dest=user/app:cache
+          outputs: type=local,dest=./alpine_storefront
+          secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
+
+      - name: Move Image to copyable location
         run: |
-          cd web
-          npm run build
+          stat ./alpine_storefront
+          ls -l
+          tar -zcf alpine_storefront.tar.gz ./alpine_storefront
+          sudo cp ./alpine_storefront.tar.gz /home/
