@@ -4,7 +4,7 @@ on:
       - "34-Throw-it-in-a-box!"
 permissions:
   pull-requests: write
-name: 🌱 Apply, Build, Deploy 🌿
+name: ✨ Build Test 🧐
 jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
@@ -48,7 +48,9 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: ["TF-Apply"]
     steps:
-      - name: Set up Docker Buildx and Checkout
+      - name: Check Out
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Use Node.js
         uses: actions/setup-node@v4
