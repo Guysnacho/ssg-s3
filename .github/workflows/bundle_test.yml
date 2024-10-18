@@ -86,7 +86,6 @@ jobs:
         with:
           file: ./web/Dockerfile
           push: false # if we wanted to push the image to DockerHub
-          add-hosts: 3000:3000
           tags: user/app:latest
           cache-to: user/app:cache
           outputs: type=local,dest=./alpine_storefront
