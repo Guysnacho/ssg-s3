@@ -96,9 +96,8 @@ jobs:
         run: |
           stat ./alpine_storefront
           ls -l
-          tar -zcvf alpine_storefront.tar.gz ./alpine_storefront
+          tar -zcf alpine_storefront.tar.gz ./alpine_storefront
           sudo cp ./alpine_storefront.tar.gz /home/
-          ls -l /home/alpine_storefront
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -111,5 +110,5 @@ jobs:
 
       - name: Echo artifact url and send to SSM parameter
         run: |
-          echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}} >> $GITHUB_OUTPUT
+          echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}}
           aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String
