@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 locals {
   ecr_name = "ecr-ex-${replace(basename(path.cwd), "_", "-")}"
 
@@ -21,7 +17,6 @@ module "ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
   repository_name = local.ecr_name
-  repository_type = "public"
 
   repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
   repository_lifecycle_policy = jsonencode({
@@ -57,29 +52,15 @@ module "ecr" {
 ################################################################################
 
 data "aws_iam_policy_document" "registry" {
-  #   Callers can reference our repository
+  #   Callers can reference our repository and import public images
   statement {
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${local.account_id}:root"]
     }
 
-    actions   = ["ecr:ReplicateImage"]
+    actions   = ["ecr:ReplicateImage", "ecr:BatchImportUpstreamImage", "ecr:CreateRepository"]
     resources = [module.ecr.repository_arn]
   }
 
-  #   Callers can create repositories
-  statement {
-    sid = "pub"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${local.account_id}:root"]
-    }
-    actions = [
-      "ecr:CreateRepository",
-      "ecr:BatchImportUpstreamImage"
-    ]
-    resources = [data.aws_ssm_parameter.image_url.value]
-  }
 }
