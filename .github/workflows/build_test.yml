@@ -98,9 +98,9 @@ jobs:
           context: ./web/
           file: ./web/Dockerfile
           push: true # if we wanted to push the image to DockerHub or a local registry
-          tags: ${{needs.TF-Apply.outputs.registry_url}}/ecr-ex-config:latest
+          tags: ecr-ex-config
           # cache-to: type=local,dest=user/app:cache
-          outputs: type=local,dest=./alpine_storefront,type=image,dest=${{needs.TF-Apply.outputs.registry_url}}/ecr-ex-config:latest
+          outputs: type=local,dest=./alpine_storefront,type=image,dest=${{needs.TF-Apply.outputs.registry_url}}
           secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
       - name: Move Image to copyable location
