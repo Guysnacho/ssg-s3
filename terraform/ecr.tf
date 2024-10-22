@@ -70,13 +70,17 @@ data "aws_iam_policy_document" "registry" {
       identifiers = ["arn:aws:iam::${local.account_id}:root"]
     }
 
-    actions = ["ecr:GetAuthorizationToken",
+    actions = ["ecr:BatchCheckLayerAvailability",
       "ecr:GetDownloadUrlForLayer",
+      "ecr:GetRepositoryPolicy",
       "ecr:DescribeRepositories",
       "ecr:ListImages",
       "ecr:DescribeImages",
-      "ecr:ListTagsForResource",
-    "ecr:DescribeImageScanFindings"]
+      "ecr:BatchGetImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+    "ecr:PutImage"]
     resources = [module.ecr.repository_arn]
   }
 
