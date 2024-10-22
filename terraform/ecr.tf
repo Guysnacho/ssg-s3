@@ -9,7 +9,6 @@ locals {
   }
 }
 
-data "aws_caller_identity" "auth_current" {}
 data "aws_ssm_parameter" "image_url" {
   name = "ecr_artifact_url"
 }
@@ -68,7 +67,7 @@ data "aws_iam_policy_document" "registry" {
   statement {
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+      identifiers = ["arn:aws:iam::${local.account_id}:root"]
     }
 
     actions = [
