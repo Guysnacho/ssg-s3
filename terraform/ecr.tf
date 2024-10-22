@@ -63,4 +63,21 @@ data "aws_iam_policy_document" "registry" {
     resources = [module.ecr.repository_arn]
   }
 
+  #   Callers can reference our repository and import public images
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${local.account_id}:root"]
+    }
+
+    actions = ["ecr:GetAuthorizationToken",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:DescribeRepositories",
+      "ecr:ListImages",
+      "ecr:DescribeImages",
+      "ecr:ListTagsForResource",
+    "ecr:DescribeImageScanFindings"]
+    resources = [module.ecr.repository_arn]
+  }
+
 }

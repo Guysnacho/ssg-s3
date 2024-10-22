@@ -7,8 +7,7 @@ locals {
   container_port = 80
 
   tags = {
-    Name       = local.name
-    Repository = "https://github.com/terraform-aws-modules/terraform-aws-ecs"
+    Name = local.name
   }
 }
 
@@ -361,3 +360,8 @@ module "autoscaling_sg" {
 
   tags = local.tags
 }
+
+# data "aws_ecr_image" "service_image" {
+#   repository_name = "my/service"
+#   image_tag       = "latest"
+# }
