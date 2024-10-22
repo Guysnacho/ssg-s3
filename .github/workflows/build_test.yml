@@ -96,10 +96,10 @@ jobs:
         run: |
           # Build a docker container and push it to ECR 
           cd web
-          docker build --output type=local,dest=./alpine_storefront -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
           echo "Pushing image to ECR..."
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "artifact-url=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker push ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
+          echo "artifact-url=${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_OUTPUT
 
       # - name: 🐳 Build Image
       #   uses: docker/build-push-action@v6
@@ -112,22 +112,22 @@ jobs:
       #     outputs: type=local,dest=./alpine_storefront,type=image,dest=${{needs.TF-Apply.outputs.registry_url}}/ecr-ex-config:latest
       #     secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
 
-      - name: Move Image to copyable location
-        run: |
-          stat ./alpine_storefront
-          tar -zcf alpine_storefront.tar.gz ./alpine_storefront
-          sudo cp ./alpine_storefront.tar.gz /home/
+      # - name: Move Image to copyable location
+      #   run: |
+      #     stat ./alpine_storefront
+      #     tar -zcf alpine_storefront.tar.gz ./alpine_storefront
+      #     sudo cp ./alpine_storefront.tar.gz /home/
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        id: artifact-upload-step
-        with:
-          name: storefront_image
-          path: /home/alpine_storefront.tar.gz
-          overwrite: true
-          if-no-files-found: error
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v4
+      #   id: artifact-upload-step
+      #   with:
+      #     name: storefront_image
+      #     path: /home/alpine_storefront.tar.gz
+      #     overwrite: true
+      #     if-no-files-found: error
 
-      - name: Echo artifact url and send to SSM parameter
-        run: |
-          echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}}
-          aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String  --overwrite
+      # - name: Echo artifact url and send to SSM parameter
+      #   run: |
+      #     echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}}
+      #     aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String  --overwrite
