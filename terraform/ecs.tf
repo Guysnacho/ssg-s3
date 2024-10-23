@@ -363,6 +363,5 @@ module "autoscaling_sg" {
 
 data "aws_ecr_image" "service_image" {
   repository_name = module.ecr.repository_name
-  image_tag       = "latest"
   most_recent     = true
 }
