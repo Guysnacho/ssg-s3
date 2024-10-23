@@ -301,7 +301,7 @@ module "autoscaling" {
   name = "${local.name}-${each.key}"
 
   # Replace with our storefront image
-  image_id      = data.aws_ssm_parameter.image_uri
+  image_id      = data.aws_ecr_image.service_image.id
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
@@ -361,7 +361,8 @@ module "autoscaling_sg" {
   tags = local.tags
 }
 
-# data "aws_ecr_image" "service_image" {
-#   repository_name = "my/service"
-#   image_tag       = "latest"
-# }
+data "aws_ecr_image" "service_image" {
+  repository_name = module.ecr.repository_name
+  image_tag       = "latest"
+  most_recent     = true
+}

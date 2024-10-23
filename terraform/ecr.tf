@@ -5,7 +5,6 @@ locals {
 
   ecr_tags = {
     Name       = local.name
-    Repository = "https://github.com/terraform-aws-modules/terraform-aws-ecr"
   }
 }
 
