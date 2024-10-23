@@ -301,7 +301,7 @@ module "autoscaling" {
   name = "${local.name}-${each.key}"
 
   # Replace with our storefront image
-  image_id      = data.aws_ecr_image.service_image.id
+  image_id      = data.aws_ecr_image.service_image.image_uri
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
