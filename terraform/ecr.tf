@@ -52,18 +52,8 @@ module "ecr" {
 ################################################################################
 
 data "aws_iam_policy_document" "registry" {
-  #   Callers can reference our repository and import public images
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${local.account_id}:root"]
-    }
-
-    actions   = ["ecr:ReplicateImage", "ecr:BatchImportUpstreamImage", "ecr:CreateRepository"]
-    resources = [module.ecr.repository_arn]
-  }
-
-  #   Callers can reference our repository and import public images
+  #   Callers can reference our repository and pull our private images
+  #   https://github.com/aws-actions/amazon-ecr-login/tree/v2.0.1?tab=readme-ov-file#ecr-private
   statement {
     principals {
       type        = "AWS"
@@ -72,19 +62,18 @@ data "aws_iam_policy_document" "registry" {
 
     actions = [
       "ecr:GetAuthorizationToken",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:GetRepositoryPolicy",
-      "ecr:DescribeRepositories",
-      "ecr:ListImages",
-      "ecr:DescribeImages",
+      "ecr:ReplicateImage",
+      "ecr:BatchImportUpstreamImage",
+      "ecr:CreateRepository",
       "ecr:BatchGetImage",
-      "ecr:InitiateLayerUpload",
-      "ecr:UploadLayerPart",
+      "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
-      "ecr:PutImage"
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:InitiateLayerUpload",
+      "ecr:PutImage",
+      "ecr:UploadLayerPart"
     ]
-    resources = [module.ecr.repository_arn]
+    resources = ["${module.ecr.repository_arn}/*"]
   }
 
 }

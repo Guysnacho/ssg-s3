@@ -11,7 +11,6 @@ jobs:
     # https://stackoverflow.com/questions/59175332/using-output-from-a-previous-job-in-a-new-one-in-a-github-action
     outputs:
       apigw: ${{steps.APIGW.outputs.NEXT_PUBLIC_APIGW}}
-      registry_url: ${{steps.APIGW.outputs.REGISTRY_URL}}
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -40,7 +39,6 @@ jobs:
         run: |
           cd terraform
           echo "NEXT_PUBLIC_APIGW=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
-          echo "REGISTRY_URL=$(terraform output -raw ecr-push-url)" >> $GITHUB_OUTPUT
   web-deploy:
     name: 💫 Deploy
     runs-on: ubuntu-latest
@@ -87,15 +85,14 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
-      - name: 🐳 Build and deploy image
+      - name: 🐳 Build Image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ecr-ex-config
           IMAGE_TAG: latest
         run: |
           echo "Building a docker image"
           cd web
-          docker build -t ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
+          docker build -t ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
           echo "Pushing image to ECR..."
-          docker push ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
-          echo "artifact-url=${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_OUTPUT
+          docker push ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
+          echo "artifact-url=${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_OUTPUT

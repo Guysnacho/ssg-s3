@@ -82,10 +82,9 @@ jobs:
 
       - name: 🐳 Build Image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ecr-ex-config
           IMAGE_TAG: latest
         run: |
           echo "Building a docker image"
           cd web
-          docker build -t ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
+          docker build -t ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
