@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - "33-Scaffold-and-use-ECR"
+      - " "
 permissions:
   pull-requests: write
 name: ✨ Build Test 🧐
@@ -33,9 +33,9 @@ jobs:
         run: |
           cd terraform
           terraform apply -var="bucket-name=${{ secrets.S3_BUCKET }}" -var="db-name=${{ secrets.DB_NAME }}" -var="db-username=${{ secrets.DB_USER }}" -auto-approve
-      - run: echo ${{ steps.plan.outputs.stdout }}
-      - run: echo ${{ steps.plan.outputs.stderr }}
-      - run: echo ${{ steps.plan.outputs.exitcode }}
+      # - run: echo ${{ steps.plan.outputs.stdout }}
+      # - run: echo ${{ steps.plan.outputs.stderr }}
+      # - run: echo ${{ steps.plan.outputs.exitcode }}
       - name: Fetch API GW
         id: APIGW
         run: |
@@ -94,40 +94,9 @@ jobs:
           ECR_REPOSITORY: ecr-ex-config
           IMAGE_TAG: latest
         run: |
-          # Build a docker container and push it to ECR 
+          echo "Building a docker image"
           cd web
           docker build -t ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
           echo "Pushing image to ECR..."
           docker push ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
           echo "artifact-url=${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_OUTPUT
-
-      # - name: 🐳 Build Image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: ./web/
-      #     file: ./web/Dockerfile
-      #     push: true # if we wanted to push the image to DockerHub or a local registry
-      #     tags: ecr-ex-config
-      #     # cache-to: type=local,dest=user/app:cache
-      #     outputs: type=local,dest=./alpine_storefront,type=image,dest=${{needs.TF-Apply.outputs.registry_url}}/ecr-ex-config:latest
-      #     secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
-
-      # - name: Move Image to copyable location
-      #   run: |
-      #     stat ./alpine_storefront
-      #     tar -zcf alpine_storefront.tar.gz ./alpine_storefront
-      #     sudo cp ./alpine_storefront.tar.gz /home/
-
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v4
-      #   id: artifact-upload-step
-      #   with:
-      #     name: storefront_image
-      #     path: /home/alpine_storefront.tar.gz
-      #     overwrite: true
-      #     if-no-files-found: error
-
-      # - name: Echo artifact url and send to SSM parameter
-      #   run: |
-      #     echo ARTIFACT_URL=${{steps.artifact-upload-step.outputs.artifact-url}}
-      #     aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.artifact-upload-step.outputs.artifact-url}}" --type String  --overwrite

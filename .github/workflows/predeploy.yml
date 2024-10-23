@@ -32,9 +32,9 @@ jobs:
         run: |
           cd terraform
           terraform plan -refresh-only -var="bucket-name=${{ secrets.S3_BUCKET }}" -var="db-name=${{ secrets.DB_NAME }}" -var="db-username=${{ secrets.DB_USER }}" # -auto-approve
-      - run: echo ${{ steps.plan.outputs.stdout }}
-      - run: echo ${{ steps.plan.outputs.stderr }}
-      - run: echo ${{ steps.plan.outputs.exitcode }}
+      # - run: echo ${{ steps.plan.outputs.stdout }}
+      # - run: echo ${{ steps.plan.outputs.stderr }}
+      # - run: echo ${{ steps.plan.outputs.exitcode }}
       - name: Fetch API GW
         id: APIGW
         run: |
@@ -76,20 +76,16 @@ jobs:
           cd web
           STATIC=1 npm run build
 
-      - name: 🐳 Build Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./web/
-          file: ./web/Dockerfile
-          push: false # if we wanted to push the image to DockerHub or a local registry
-          tags: user/app:latest
-          # cache-to: type=local,dest=user/app:cache
-          outputs: type=local,dest=./alpine_storefront
-          secret-envs: NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2.0.1
 
-      - name: Move Image to copyable location
+      - name: 🐳 Build Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ecr-ex-config
+          IMAGE_TAG: latest
         run: |
-          stat ./alpine_storefront
-          ls -l
-          tar -zcf alpine_storefront.tar.gz ./alpine_storefront
-          sudo cp ./alpine_storefront.tar.gz /home/
+          echo "Building a docker image"
+          cd web
+          docker build -t ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} .
