@@ -162,8 +162,8 @@ module "ecs_service" {
 ################################################################################
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
-data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
+data "aws_ssm_parameter" "image_uri" {
+  name = "ecr_artifact_url"
 }
 
 module "alb" {
@@ -301,7 +301,7 @@ module "autoscaling" {
   name = "${local.name}-${each.key}"
 
   # Replace with our storefront image
-  image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
+  image_id      = data.aws_ssm_parameter.image_uri
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]

@@ -97,3 +97,10 @@ jobs:
           echo "Pushing image to ECR..."
           docker push ${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
           echo "artifact-url=${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_OUTPUT
+
+      - name: Send artifact url to SSM parameter
+        env:
+          ECR_REPOSITORY: ecr-ex-config
+          IMAGE_TAG: latest
+        run: |
+          aws ssm put-parameter --name "ecr_artifact_url" --value "${{steps.login-ecr.outputs.registry}}/${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}" --type String  --overwrite

@@ -9,10 +9,6 @@ locals {
   }
 }
 
-data "aws_ssm_parameter" "image_url" {
-  name = "ecr_artifact_url"
-}
-
 module "ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
