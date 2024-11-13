@@ -4,7 +4,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
 
   ecr_tags = {
-    Name       = local.name
+    Name       = local.ecr_name
   }
 }
 
