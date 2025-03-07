@@ -15,10 +15,10 @@ jobs:
       - name: Check Out
         uses: actions/checkout@v4
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v3.1.2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-          terraform_version: 1.9.2
+          terraform_version: 1.11.1
       - name: Look around nd Init 👁️👁️
         run: |
           echo Looking around 👁️👁️
