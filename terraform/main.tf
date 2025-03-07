@@ -1,6 +1,6 @@
 terraform {
   cloud {
-    organization = "tunjiprod"
+    organization = "blackbelt_init"
 
     workspaces {
       name = "SSG-S3"
