@@ -9,7 +9,7 @@ data "archive_file" "sale_package" {
 
 module "sale_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "7.9.0"
+  version = "7.20.1"
 
   function_name      = "storefront-sale-lambda"
   description        = "Lambda for handling sales by our users"

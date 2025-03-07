@@ -1,6 +1,6 @@
 module "cloudfront" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "3.4.0"
+  version = "4.1.0"
 
   comment             = "CDN for AWS S3 site."
   default_root_object = "index.html"

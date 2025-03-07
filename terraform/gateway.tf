@@ -3,6 +3,7 @@ module "gateway" {
   name          = "storefront-gateway"
   description   = "Gateway for allowing requests from our storefront to talk to AWS resources."
   protocol_type = "HTTP"
+  version       = "5.2.1"
 
   # API
   #   body = "import_me_from_local.yml"

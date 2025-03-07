@@ -56,7 +56,7 @@ module "db" {
 
 module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
   name        = "storefront_security_group"
   description = "Complete PostgreSQL example security group"
