@@ -1,13 +1,15 @@
 # Full disclosure, this modules a little overwhelming
 
 locals {
-  name = "ex-${basename(path.cwd)}"
+  region = "eu-west-1"
+  name   = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
   container_port = 80
 
   tags = {
-    Name = local.name
+    Name       = local.name
+    Repository = "https://github.com/terraform-aws-modules/terraform-aws-ecs"
   }
 }
 
@@ -19,60 +21,46 @@ module "ecs_cluster" {
   source  = "terraform-aws-modules/ecs/aws//modules/cluster"
   version = "5.11.4"
 
-  # create = true
-
   cluster_name = local.name
 
   # Capacity provider - autoscaling groups
-  default_capacity_provider_use_fargate = true
-  create_task_exec_iam_role             = true
-  create_task_exec_policy               = true
-  task_exec_iam_role_name               = "ecs_task_execution_role"
+  default_capacity_provider_use_fargate = false
+  autoscaling_capacity_providers = {
+    # On-demand instances, opting for spot instances for lower costs
+    # ex_1 = {
+    #   auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
+    #   managed_termination_protection = "DISABLED"
 
-  fargate_capacity_providers = {
-    FARGATE_SPOT = {
+    #   managed_scaling = {
+    #     maximum_scaling_step_size = 2
+    #     minimum_scaling_step_size = 1
+    #     status                    = "ENABLED"
+    #     target_capacity           = 15
+    #   }
+
+    #   default_capacity_provider_strategy = {
+    #     weight = 15
+    #     base   = 5
+    #   }
+    # }
+    # Spot instances
+    ex_2 = {
+      auto_scaling_group_arn = module.autoscaling["ex_2"].autoscaling_group_arn
+      # In production this should be enabled
+      managed_termination_protection = "DISABLED"
+
+      managed_scaling = {
+        maximum_scaling_step_size = 5
+        minimum_scaling_step_size = 1
+        status                    = "ENABLED"
+        target_capacity           = 90
+      }
+
       default_capacity_provider_strategy = {
-        weight = 50
+        weight = 5
       }
     }
   }
-
-  # autoscaling_capacity_providers = {
-  #   # On-demand instances, opting for spot instances for lower costs
-  #   # ex_1 = {
-  #   #   auto_scaling_group_arn         = module.autoscaling["ex_1"].autoscaling_group_arn
-  #   #   managed_termination_protection = "DISABLED"
-
-  #   #   managed_scaling = {
-  #   #     maximum_scaling_step_size = 2
-  #   #     minimum_scaling_step_size = 1
-  #   #     status                    = "ENABLED"
-  #   #     target_capacity           = 15
-  #   #   }
-
-  #   #   default_capacity_provider_strategy = {
-  #   #     weight = 15
-  #   #     base   = 5
-  #   #   }
-  #   # }
-  #   # Spot instances
-  #   ex_2 = {
-  #     auto_scaling_group_arn = module.autoscaling["ex_2"].autoscaling_group_arn
-  #     # In production this should be enabled
-  #     managed_termination_protection = "DISABLED"
-
-  #     managed_scaling = {
-  #       maximum_scaling_step_size = 5
-  #       minimum_scaling_step_size = 1
-  #       status                    = "ENABLED"
-  #       target_capacity           = 90
-  #     }
-
-  #     default_capacity_provider_strategy = {
-  #       weight = 5
-  #     }
-  #   }
-  # }
 
   tags = local.tags
 }
@@ -103,18 +91,12 @@ module "ecs_service" {
     # Storage volume, when given an empty map, our volume lives in memory
     my-vol = {}
   }
-  launch_type = "FARGATE"
+  launch_type = "EC2"
 
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
-      # image              = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-      image              = data.aws_ecr_image.service_image.image_uri
-      cpu                = 512
-      memory             = 1024
-      essential          = true
-      memory_reservation = 50
-      # image = "public.ecr.aws/docker/library/alpine:edge"
+      image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
       port_mappings = [
         {
           name          = local.container_name
@@ -173,6 +155,11 @@ module "ecs_service" {
 # Supporting Resources
 ################################################################################
 
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
+data "aws_ssm_parameter" "ecs_optimized_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
+}
+
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 9.0"
@@ -208,7 +195,7 @@ module "alb" {
 
   listeners = {
     ex_http = {
-      port     = 3000
+      port     = 80
       protocol = "HTTP"
 
       forward = {
@@ -312,7 +299,7 @@ module "autoscaling" {
 
   # Replace with our storefront image
   image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
-  instance_name = "storefront"
+  instance_name = var.db-name
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
@@ -370,10 +357,4 @@ module "autoscaling_sg" {
   egress_rules = ["all-all"]
 
   tags = local.tags
-}
-
-resource "aws_service_discovery_http_namespace" "this" {
-  name        = local.name
-  description = "CloudMap namespace for ${local.name}"
-  tags        = local.tags
 }
