@@ -1,6 +1,6 @@
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.6.0"
   bucket  = var.bucket-name
 
   policy = data.aws_iam_policy_document.s3_policy.json
@@ -22,7 +22,7 @@ module "s3_bucket" {
 
 module "failover_s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.6.0"
   bucket  = "${var.bucket-name}-failover"
 
   policy = data.aws_iam_policy_document.failover_s3_policy.json

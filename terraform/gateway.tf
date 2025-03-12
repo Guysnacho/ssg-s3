@@ -3,6 +3,7 @@ module "gateway" {
   name          = "storefront-gateway"
   description   = "Gateway for allowing requests from our storefront to talk to AWS resources."
   protocol_type = "HTTP"
+  version       = "5.2.1"
 
   # API
   #   body = "import_me_from_local.yml"
@@ -83,7 +84,9 @@ module "gateway" {
     }
     # "$default" = {
     #   integration = {
-    #     uri = "arn:aws:lambda:eu-west-1:052235179155:function:my-default-function"
+    #     uri = module.alb.arn
+    #     description = "ECS Storefront"
+
     #   }
     # }
   }

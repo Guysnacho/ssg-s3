@@ -9,7 +9,7 @@ data "archive_file" "catalog_package" {
 
 module "catalog_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "7.9.0"
+  version = "7.20.1"
 
   function_name      = "storefront-catalog-lambda"
   description        = "Lambda for handling user login and signup requests"

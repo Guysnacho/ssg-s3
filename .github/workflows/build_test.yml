@@ -1,9 +1,10 @@
 on:
   push:
-    branches: ["main"]
+    branches:
+      - "_"
 permissions:
   pull-requests: write
-name: 🌱 Apply, Build, Deploy 🌿
+name: ✨ Build Test 🧐
 jobs:
   TF-Apply:
     name: 🏗️ Apply Infra
@@ -31,9 +32,9 @@ jobs:
         run: |
           cd terraform
           terraform apply -var "bucket-name=${{ secrets.S3_BUCKET }}" -var "db-name=${{ secrets.DB_NAME }}" -var "db-username=${{ secrets.DB_USER }}" -auto-approve
-      # - run: echo ${{ steps.plan.outputs.stdout }}
-      # - run: echo ${{ steps.plan.outputs.stderr }}
-      # - run: echo ${{ steps.plan.outputs.exitcode }}
+      - run: echo ${{ steps.plan.outputs.stdout }}
+      - run: echo ${{ steps.plan.outputs.stderr }}
+      - run: echo ${{ steps.plan.outputs.exitcode }}
       - name: Fetch API GW
         id: APIGW
         run: |
