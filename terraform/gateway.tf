@@ -82,10 +82,12 @@ module "gateway" {
         # type                      = "AWS_PROXY"
       }
     }
-    "$default" = {
-      integration = {
-        uri = module.alb.arn
-      }
-    }
+    # "$default" = {
+    #   integration = {
+    #     uri = module.alb.arn
+    #     description = "ECS Storefront"
+
+    #   }
+    # }
   }
 }
