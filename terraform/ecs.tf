@@ -1,7 +1,6 @@
 # Full disclosure, this modules a little overwhelming
 
 locals {
-  region = "eu-west-1"
   name   = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
@@ -68,15 +67,6 @@ module "ecs_service" {
 
   # Container definition(s)
   container_definitions = {
-
-    storefront = {
-      cpu                = 512
-      memory             = 1024
-      essential          = true
-      image              = nonsensitive(data.aws_ecr_image.service_image.image_uri)
-      memory_reservation = 50
-      user               = "0"
-    }
 
     (local.container_name) = {
       cpu       = 512
