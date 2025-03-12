@@ -38,6 +38,7 @@ module "ecr" {
     architectures     = ["x86"]
     logo_image_blob   = filebase64("${path.module}/ecr_assets/clowd.png")
   }
+  repository_image_tag_mutability = "MUTABLE"
 
   tags = local.ecr_tags
 }
