@@ -51,3 +51,4 @@ output "ecr-push-url" {
   description = "ECR Repository URL"
   sensitive   = true
 }
+

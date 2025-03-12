@@ -216,7 +216,7 @@ module "alb" {
   load_balancer_type = "application"
 
   vpc_id  = module.vpc.vpc_id
-  subnets = module.vpc.public_subnets
+  subnets = module.vpc.private_subnets
 
   # For example only
   enable_deletion_protection = false
@@ -241,7 +241,6 @@ module "alb" {
       cidr_ipv4   = module.vpc.vpc_cidr_block
     }
   }
-
   listeners = {
     ex_http = {
       port     = 3000

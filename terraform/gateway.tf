@@ -82,10 +82,10 @@ module "gateway" {
         # type                      = "AWS_PROXY"
       }
     }
-    # "$default" = {
-    #   integration = {
-    #     uri = "arn:aws:lambda:eu-west-1:052235179155:function:my-default-function"
-    #   }
-    # }
+    "$default" = {
+      integration = {
+        uri = module.alb.dns_name
+      }
+    }
   }
 }
