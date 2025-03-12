@@ -5,7 +5,7 @@ locals {
   name   = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
-  container_port = 80
+  container_port = 3000
 
   tags = {
     Name       = local.name
@@ -94,11 +94,12 @@ module "ecs_service" {
 
       # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
+      # entry_point = ["node", "server.js"]
 
-      dependencies = [{
-        containerName = "storefront"
-        condition     = "START"
-      }]
+      # dependencies = [{
+      #   containerName = "storefront"
+      #   condition     = "START"
+      # }]
 
       enable_cloudwatch_logging = true
 
@@ -113,10 +114,10 @@ module "ecs_service" {
       }
 
       # Not required for storefront, just an example
-      volumes_from = [{
-        sourceContainer = "storefront"
-        readOnly        = false
-      }]
+      # volumes_from = [{
+      #   sourceContainer = "storefront"
+      #   readOnly        = false
+      # }]
 
       memory_reservation = 100
     }
@@ -233,12 +234,12 @@ module "alb" {
   # Security Group
   security_group_ingress_rules = {
     all_http = {
-      # Allow all tcp traffic in through port 80
+      # Allow all tcp traffic in through port 3000
       # Feel free to scope this rule down depending on your usecase.
       # Maybe you only want specific ranges available and divide those
       # ranges among individual ecs tasks.
-      from_port   = 80
-      to_port     = 80
+      from_port   = 3000
+      to_port     = 3000
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -253,7 +254,7 @@ module "alb" {
 
   listeners = {
     ex_http = {
-      port     = 80
+      port     = 3000
       protocol = "HTTP"
 
       forward = {
