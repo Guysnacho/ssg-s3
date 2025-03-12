@@ -84,7 +84,7 @@ module "gateway" {
     }
     "$default" = {
       integration = {
-        uri = module.alb.dns_name
+        uri = module.alb.arn
       }
     }
   }
