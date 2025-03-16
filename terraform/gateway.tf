@@ -84,7 +84,7 @@ module "gateway" {
     }
     # "$default" = {
     #   integration = {
-    #     uri = module.alb.arn
+    #     uri = module.ecr
     #     description = "ECS Storefront"
 
     #   }
