@@ -48,6 +48,7 @@ module "ecs_cluster" {
 
 module "ecs_service" {
   source = "terraform-aws-modules/ecs/aws//modules/service"
+  depends_on = [ data.aws_ecr_image.service_image ]
 
   # Service
   name        = local.name
