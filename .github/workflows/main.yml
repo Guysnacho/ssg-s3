@@ -5,47 +5,47 @@ permissions:
   pull-requests: write
 name: 🌱 Apply, Build, Deploy 🌿
 jobs:
-  # TF-Apply:
-  #   name: 🏗️ Apply Infra
-  #   runs-on: ubuntu-latest
-  #   # https://stackoverflow.com/questions/59175332/using-output-from-a-previous-job-in-a-new-one-in-a-github-action
-  #   outputs:
-  #     apigw: ${{steps.APIGW.outputs.NEXT_PUBLIC_APIGW}}
-  #   steps:
-  #     - name: Check Out
-  #       uses: actions/checkout@v4
-  #     - name: Setup Terraform
-  #       uses: hashicorp/setup-terraform@v3
-  #       with:
-  #         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-  #         terraform_version: "1.11.1"
-  #     - name: Look around nd Init 👁️👁️
-  #       run: |
-  #         echo Looking around 👁️👁️
-  #         ls
-  #         cd terraform
-  #         echo Looking around 👁️👁️
-  #         ls
-  #         terraform init
-  #     - name: 🏗️ Terraform Apply
-  #       run: |
-  #         cd terraform
-  #         terraform apply -var "bucket-name=${{ secrets.S3_BUCKET }}" -var "db-name=${{ secrets.DB_NAME }}" -var "db-username=${{ secrets.DB_USER }}" -auto-approve
-  #     - run: echo ${{ steps.plan.outputs.stdout }}
-  #     - run: echo ${{ steps.plan.outputs.stderr }}
-  #     - run: echo ${{ steps.plan.outputs.exitcode }}
-  #     - name: Fetch API GW
-  #       id: APIGW
-  #       run: |
-  #         cd terraform
-  #         echo "NEXT_PUBLIC_APIGW=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
+  TF-Apply:
+    name: 🏗️ Apply Infra
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/questions/59175332/using-output-from-a-previous-job-in-a-new-one-in-a-github-action
+    outputs:
+      apigw: ${{steps.APIGW.outputs.NEXT_PUBLIC_APIGW}}
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.11.1"
+      - name: Look around nd Init 👁️👁️
+        run: |
+          echo Looking around 👁️👁️
+          ls
+          cd terraform
+          echo Looking around 👁️👁️
+          ls
+          terraform init
+      - name: 🏗️ Terraform Apply
+        run: |
+          cd terraform
+          terraform apply -var "bucket-name=${{ secrets.S3_BUCKET }}" -var "db-name=${{ secrets.DB_NAME }}" -var "db-username=${{ secrets.DB_USER }}" -auto-approve
+      - run: echo ${{ steps.plan.outputs.stdout }}
+      - run: echo ${{ steps.plan.outputs.stderr }}
+      - run: echo ${{ steps.plan.outputs.exitcode }}
+      - name: Fetch API GW
+        id: APIGW
+        run: |
+          cd terraform
+          echo "NEXT_PUBLIC_APIGW=$(terraform output -raw api-route)" >> $GITHUB_OUTPUT
   web-deploy:
     name: 💫 Deploy
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    # needs: ["TF-Apply"]
+    needs: ["TF-Apply"]
     steps:
       - name: Check Out
         uses: actions/checkout@v4
@@ -65,10 +65,10 @@ jobs:
           cd web
           npm install
 
-      # - name: ⚗️ Write env variables
-      #   run: |
-      #     cd web
-      #      echo "NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}" > .env
+      - name: ⚗️ Write env variables
+        run: |
+          cd web
+          echo "NEXT_PUBLIC_APIGW=${{needs.TF-Apply.outputs.apigw}}" > .env
 
       - name: 🔨 Build Static Project
         run: |
