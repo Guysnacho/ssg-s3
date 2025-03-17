@@ -82,11 +82,11 @@ module "gateway" {
         # type                      = "AWS_PROXY"
       }
     }
-    # "$default" = {
+    # "GET /" = {
     #   integration = {
-    #     uri = module.ecr
-    #     description = "ECS Storefront"
-
+    #     uri                  = module.ecs_service.task_set_arn
+    #     description          = "ECS Storefront"
+    #     passthrough_behavior = "WHEN_NO_TEMPLATES"
     #   }
     # }
   }

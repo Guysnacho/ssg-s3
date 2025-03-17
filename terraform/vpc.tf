@@ -1,6 +1,5 @@
 locals {
   vpc_cidr = "10.0.0.0/16"
-  port     = 5432
   azs      = ["us-west-2a", "us-west-2b"]
 }
 
@@ -24,9 +23,9 @@ module "vpc" {
   name = "storefront_vpc"
   cidr = local.vpc_cidr
 
-  azs              = local.azs
-  public_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  private_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 3)]
+  azs             = local.azs
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 3)]
   # database_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 6)]
 
   enable_dns_hostnames                   = true
@@ -36,4 +35,5 @@ module "vpc" {
   enable_nat_gateway                     = true
   single_nat_gateway                     = true
   enable_vpn_gateway                     = false
+  create_igw                             = true
 }

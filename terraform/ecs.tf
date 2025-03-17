@@ -7,8 +7,7 @@ locals {
   container_port = 3000
 
   tags = {
-    Name       = local.name
-    Repository = "27th time's the charm"
+    Name = local.name
   }
 }
 
@@ -47,15 +46,16 @@ module "ecs_cluster" {
 ################################################################################
 
 module "ecs_service" {
-  source = "terraform-aws-modules/ecs/aws//modules/service"
-  depends_on = [ data.aws_ecr_image.service_image ]
+  source     = "terraform-aws-modules/ecs/aws//modules/service"
+  depends_on = [data.aws_ecr_image.service_image]
 
   # Service
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
+  create      = data.aws_ecr_image.service_image == null ? false : true
 
-  cpu    = 1024
-  memory = 4096
+  cpu         = 1024
+  memory      = 4096
 
   # Enables ECS Exec
   enable_execute_command = true
@@ -83,9 +83,7 @@ module "ecs_service" {
         }
       ]
 
-      # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
-      # entry_point = ["node", "server.js"]
 
       # dependencies = [{
       #   containerName = "storefront"
@@ -104,12 +102,6 @@ module "ecs_service" {
         }
       }
 
-      # Not required for storefront, just an example
-      # volumes_from = [{
-      #   sourceContainer = "storefront"
-      #   readOnly        = false
-      # }]
-
       memory_reservation = 100
     }
   }
@@ -126,14 +118,13 @@ module "ecs_service" {
     }
   }
 
-  # load_balancer = {
-  #   service = {
-  #     target_group_arn   = module.alb.target_groups["ex_ecs"].arn
-  #     load_balancer_name = local.name
-  #     container_name     = local.container_name
-  #     container_port     = local.container_port
-  #   }
-  # }
+  load_balancer = {
+    service = {
+      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      container_name   = local.container_name
+      container_port   = local.container_port
+    }
+  }
 
   subnet_ids = module.vpc.private_subnets
   security_group_rules = {
@@ -143,7 +134,7 @@ module "ecs_service" {
       to_port                  = local.container_port
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = module.security_group.security_group_id
+      source_security_group_id = module.alb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -203,6 +194,76 @@ module "ecs_service" {
 #   name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended"
 # }
 
+module "alb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "~> 9.0"
+
+  name = local.name
+
+  load_balancer_type = "application"
+
+  vpc_id  = module.vpc.vpc_id
+  subnets = module.vpc.public_subnets
+
+  # For example only
+  enable_deletion_protection = false
+
+  # Security Group
+  security_group_ingress_rules = {
+    all_http = {
+      from_port   = 80
+      to_port     = 80
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = module.vpc.vpc_cidr_block
+    }
+  }
+
+  listeners = {
+    ex_http = {
+      port     = 80
+      protocol = "HTTP"
+
+      forward = {
+        target_group_key = "ex_ecs"
+      }
+    }
+  }
+
+  target_groups = {
+    ex_ecs = {
+      backend_protocol                  = "HTTP"
+      backend_port                      = local.container_port
+      target_type                       = "ip"
+      deregistration_delay              = 5
+      load_balancing_cross_zone_enabled = true
+
+      health_check = {
+        enabled             = true
+        healthy_threshold   = 5
+        interval            = 30
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 5
+        unhealthy_threshold = 2
+      }
+
+      # There's nothing to attach here in this definition. Instead,
+      # ECS will attach the IPs of the tasks to this target group
+      create_attachment = false
+    }
+  }
+
+  tags = local.tags
+}
+
 resource "aws_service_discovery_http_namespace" "this" {
   name        = local.name
   description = "CloudMap namespace for ${local.name}"
@@ -210,7 +271,7 @@ resource "aws_service_discovery_http_namespace" "this" {
 }
 
 data "aws_ecr_image" "service_image" {
-  depends_on = [ module.ecr ]
+  depends_on      = [module.ecr]
   repository_name = module.ecr.repository_name
   most_recent     = true
 }

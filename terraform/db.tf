@@ -1,3 +1,7 @@
+locals {
+  port = 5432
+}
+
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
