@@ -212,7 +212,7 @@ module "alb" {
   security_group_ingress_rules = {
     all_http = {
       from_port   = 80
-      to_port     = 80
+      to_port     = 3000
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -226,7 +226,7 @@ module "alb" {
 
   listeners = {
     ex_http = {
-      port     = 80
+      port     = local.container_port
       protocol = "HTTP"
 
       forward = {
@@ -248,10 +248,10 @@ module "alb" {
         healthy_threshold   = 5
         interval            = 30
         matcher             = "200"
-        path                = "/"
-        port                = "traffic-port"
+        path                = "/api/hello"
+        port                = local.container_port
         protocol            = "HTTP"
-        timeout             = 5
+        timeout             = 15
         unhealthy_threshold = 2
       }
 
