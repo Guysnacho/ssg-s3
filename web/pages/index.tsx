@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Text,
 } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
