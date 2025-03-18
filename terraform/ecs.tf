@@ -4,7 +4,7 @@ locals {
   name = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
-  container_port = 3000
+  container_port = 80
 
   tags = {
     Name = local.name
@@ -16,9 +16,8 @@ locals {
 ################################################################################
 
 module "ecs_cluster" {
-  source  = "terraform-aws-modules/ecs/aws//modules/cluster"
-  version = "5.12.0"
-
+  source       = "terraform-aws-modules/ecs/aws//modules/cluster"
+  version      = "5.12.0"
   cluster_name = local.name
 
   # Capacity provider
@@ -47,15 +46,15 @@ module "ecs_cluster" {
 
 module "ecs_service" {
   source     = "terraform-aws-modules/ecs/aws//modules/service"
-  depends_on = [data.aws_ecr_image.service_image]
+  depends_on = [data.aws_ecr_image.service_image, module.ecs_cluster]
 
   # Service
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
   create      = data.aws_ecr_image.service_image == null ? false : true
 
-  cpu         = 1024
-  memory      = 4096
+  cpu    = 1024
+  memory = 4096
 
   # Enables ECS Exec
   enable_execute_command = true
@@ -74,6 +73,18 @@ module "ecs_service" {
       memory    = 1024
       essential = true
       image     = data.aws_ecr_image.service_image.image_uri
+
+      health_check = {
+        command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/api/hello || exit 1"]
+      }
+
+      environment = [
+        {
+          "name" : "PORT",
+          "value" : 80
+        }
+      ]
+
       port_mappings = [
         {
           name          = local.container_name
@@ -86,7 +97,7 @@ module "ecs_service" {
       readonly_root_filesystem = false
 
       # dependencies = [{
-      #   containerName = "storefront"
+      #   containerName = "mystery-storefront-service-#2"
       #   condition     = "START"
       # }]
 
@@ -203,7 +214,7 @@ module "alb" {
   load_balancer_type = "application"
 
   vpc_id  = module.vpc.vpc_id
-  subnets = module.vpc.public_subnets
+  subnets = module.vpc.private_subnets
 
   # For example only
   enable_deletion_protection = false
@@ -211,8 +222,8 @@ module "alb" {
   # Security Group
   security_group_ingress_rules = {
     all_http = {
-      from_port   = 80
-      to_port     = 3000
+      from_port   = local.container_port
+      to_port     = local.container_port
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -226,7 +237,7 @@ module "alb" {
 
   listeners = {
     ex_http = {
-      port     = local.container_port
+      port     = 80
       protocol = "HTTP"
 
       forward = {
@@ -249,7 +260,7 @@ module "alb" {
         interval            = 30
         matcher             = "200"
         path                = "/api/hello"
-        port                = local.container_port
+        port                = "traffic-port"
         protocol            = "HTTP"
         timeout             = 15
         unhealthy_threshold = 2
