@@ -4,7 +4,7 @@ locals {
   name = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
-  container_port = 80
+  container_port = 8080
 
   tags = {
     Name = local.name
@@ -67,21 +67,16 @@ module "ecs_service" {
 
   # Container definition(s)
   container_definitions = {
-
     (local.container_name) = {
       cpu       = 512
       memory    = 1024
       essential = true
       image     = data.aws_ecr_image.service_image.image_uri
 
-      health_check = {
-        command = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/api/hello || exit 1"]
-      }
-
       environment = [
         {
           "name" : "PORT",
-          "value" : 80
+          "value" : local.container_port
         }
       ]
 
@@ -161,39 +156,6 @@ module "ecs_service" {
   }
 
   tags = local.tags
-  # container_definitions = {
-  #   (local.container_name) = {
-  #     image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-  #     port_mappings = [
-  #       {
-  #         name          = local.container_name
-  #         containerPort = local.container_port
-  #         protocol      = "tcp"
-  #       }
-  #     ]
-
-  #     mount_points = [
-  #       {
-  #         sourceVolume  = "my-vol",
-  #         containerPath = "/var/storefront/my-vol"
-  #       }
-  #     ]
-
-  #     entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-
-  #     # Example image used requires access to write to root filesystem
-  #     readonly_root_filesystem = false
-
-  #     enable_cloudwatch_logging              = true
-  #     create_cloudwatch_log_group            = true
-  #     cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
-  #     cloudwatch_log_group_retention_in_days = 7
-
-  #     log_configuration = {
-  #       logDriver = "awslogs"
-  #     }
-  #   }
-  # }
 }
 
 ################################################################################
@@ -214,7 +176,7 @@ module "alb" {
   load_balancer_type = "application"
 
   vpc_id  = module.vpc.vpc_id
-  subnets = module.vpc.private_subnets
+  subnets = module.vpc.public_subnets
 
   # For example only
   enable_deletion_protection = false
@@ -222,8 +184,8 @@ module "alb" {
   # Security Group
   security_group_ingress_rules = {
     all_http = {
-      from_port   = local.container_port
-      to_port     = local.container_port
+      from_port   = 80
+      to_port     = 80
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -257,12 +219,12 @@ module "alb" {
       health_check = {
         enabled             = true
         healthy_threshold   = 5
-        interval            = 30
+        interval            = 15
         matcher             = "200"
         path                = "/api/hello"
         port                = "traffic-port"
         protocol            = "HTTP"
-        timeout             = 15
+        timeout             = 5
         unhealthy_threshold = 2
       }
 
