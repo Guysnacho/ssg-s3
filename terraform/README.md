@@ -28,3 +28,4 @@ After your initial setup there should be 3 or more files in here.
 8. outputs.tf
    - outputs that you'd like to have access to if your resources are updated
    - usually these are resource names or ARNs
+
