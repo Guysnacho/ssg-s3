@@ -76,7 +76,7 @@ module "ecs_service" {
       environment = [
         {
           "name" : "PORT",
-          "value" : local.container_port
+          "value" : 3000
         }
       ]
 
@@ -84,8 +84,9 @@ module "ecs_service" {
         {
           name          = local.container_name
           containerPort = local.container_port
-          hostPort      = local.container_port
           protocol      = "tcp"
+          # hostport is dynamic in fargate ig
+          # hostPort      = local.container_port
         }
       ]
 
@@ -136,8 +137,8 @@ module "ecs_service" {
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
+      from_port                = 3000
+      to_port                  = 3000
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id
@@ -211,7 +212,7 @@ module "alb" {
   target_groups = {
     ex_ecs = {
       backend_protocol                  = "HTTP"
-      backend_port                      = local.container_port
+      backend_port                      = 3000
       target_type                       = "ip"
       deregistration_delay              = 5
       load_balancing_cross_zone_enabled = true
