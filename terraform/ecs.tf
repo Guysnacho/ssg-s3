@@ -194,7 +194,7 @@ module "alb" {
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = module.vpc.private_subnets_cidr_blocks
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
