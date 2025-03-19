@@ -4,7 +4,7 @@ locals {
   name = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
-  container_port = 8080
+  container_port = 80
 
   tags = {
     Name = local.name
