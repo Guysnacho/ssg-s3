@@ -140,7 +140,7 @@ module "ecs_service" {
       from_port                = 3000
       to_port                  = 3000
       protocol                 = "tcp"
-      description              = "Service port"
+      description              = "Allow ALB to talk to ECS on port 3000"
       source_security_group_id = module.alb.security_group_id
     }
     egress_all = {
@@ -194,7 +194,7 @@ module "alb" {
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = module.vpc.vpc_cidr_block
+      cidr_ipv4   = module.vpc.private_subnets_cidr_blocks
     }
   }
 
