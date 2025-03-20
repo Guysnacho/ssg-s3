@@ -30,10 +30,10 @@ module "vpc" {
 
   enable_dns_hostnames                   = true
   enable_dns_support                     = true
-  create_database_internet_gateway_route = false
-  create_database_nat_gateway_route      = false
+  # create_database_internet_gateway_route = false
+  # create_database_nat_gateway_route      = false
   enable_nat_gateway                     = true
   single_nat_gateway                     = true
-  enable_vpn_gateway                     = false
+  # enable_vpn_gateway                     = false
   create_igw                             = true
 }

@@ -4,7 +4,7 @@ locals {
   name = "ex-${basename(path.cwd)}"
 
   container_name = "storefront-ecs"
-  container_port = 3000
+  container_port = 80
 
   tags = {
     Name = local.name
@@ -16,9 +16,8 @@ locals {
 ################################################################################
 
 module "ecs_cluster" {
-  source  = "terraform-aws-modules/ecs/aws//modules/cluster"
-  version = "5.12.0"
-
+  source       = "terraform-aws-modules/ecs/aws//modules/cluster"
+  version      = "5.12.0"
   cluster_name = local.name
 
   # Capacity provider
@@ -47,15 +46,15 @@ module "ecs_cluster" {
 
 module "ecs_service" {
   source     = "terraform-aws-modules/ecs/aws//modules/service"
-  depends_on = [data.aws_ecr_image.service_image]
+  depends_on = [data.aws_ecr_image.service_image, module.ecs_cluster]
 
   # Service
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
   create      = data.aws_ecr_image.service_image == null ? false : true
 
-  cpu         = 1024
-  memory      = 4096
+  cpu    = 1024
+  memory = 4096
 
   # Enables ECS Exec
   enable_execute_command = true
@@ -68,25 +67,33 @@ module "ecs_service" {
 
   # Container definition(s)
   container_definitions = {
-
     (local.container_name) = {
       cpu       = 512
       memory    = 1024
       essential = true
       image     = data.aws_ecr_image.service_image.image_uri
+
+      environment = [
+        {
+          "name" : "PORT",
+          "value" : 3000
+        }
+      ]
+
       port_mappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
-          hostPort      = local.container_port
           protocol      = "tcp"
+          # hostport is dynamic in fargate ig
+          # hostPort      = local.container_port
         }
       ]
 
       readonly_root_filesystem = false
 
       # dependencies = [{
-      #   containerName = "storefront"
+      #   containerName = "mystery-storefront-service-#2"
       #   condition     = "START"
       # }]
 
@@ -130,10 +137,10 @@ module "ecs_service" {
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
+      from_port                = 3000
+      to_port                  = 3000
       protocol                 = "tcp"
-      description              = "Service port"
+      description              = "Allow ALB to talk to ECS on port 3000"
       source_security_group_id = module.alb.security_group_id
     }
     egress_all = {
@@ -150,39 +157,6 @@ module "ecs_service" {
   }
 
   tags = local.tags
-  # container_definitions = {
-  #   (local.container_name) = {
-  #     image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-  #     port_mappings = [
-  #       {
-  #         name          = local.container_name
-  #         containerPort = local.container_port
-  #         protocol      = "tcp"
-  #       }
-  #     ]
-
-  #     mount_points = [
-  #       {
-  #         sourceVolume  = "my-vol",
-  #         containerPath = "/var/storefront/my-vol"
-  #       }
-  #     ]
-
-  #     entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-
-  #     # Example image used requires access to write to root filesystem
-  #     readonly_root_filesystem = false
-
-  #     enable_cloudwatch_logging              = true
-  #     create_cloudwatch_log_group            = true
-  #     cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
-  #     cloudwatch_log_group_retention_in_days = 7
-
-  #     log_configuration = {
-  #       logDriver = "awslogs"
-  #     }
-  #   }
-  # }
 }
 
 ################################################################################
@@ -201,7 +175,7 @@ module "alb" {
   name = local.name
 
   load_balancer_type = "application"
-
+  
   vpc_id  = module.vpc.vpc_id
   subnets = module.vpc.public_subnets
 
@@ -220,7 +194,7 @@ module "alb" {
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = module.vpc.vpc_cidr_block
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
@@ -238,7 +212,7 @@ module "alb" {
   target_groups = {
     ex_ecs = {
       backend_protocol                  = "HTTP"
-      backend_port                      = local.container_port
+      backend_port                      = 3000
       target_type                       = "ip"
       deregistration_delay              = 5
       load_balancing_cross_zone_enabled = true
@@ -246,10 +220,10 @@ module "alb" {
       health_check = {
         enabled             = true
         healthy_threshold   = 5
-        interval            = 30
+        interval            = 15
         matcher             = "200"
-        path                = "/"
-        port                = "traffic-port"
+        path                = "/api/hello"
+        port                = "3000"
         protocol            = "HTTP"
         timeout             = 5
         unhealthy_threshold = 2

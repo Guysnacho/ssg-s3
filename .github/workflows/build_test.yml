@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - "_"
+      - "-"
 permissions:
   pull-requests: write
 name: ✨ Build Test 🧐
