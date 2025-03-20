@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - "37-expose-ECS"
+      - "-"
 permissions:
   pull-requests: write
 name: ✨ Build Test 🧐
