@@ -175,7 +175,7 @@ module "alb" {
   name = local.name
 
   load_balancer_type = "application"
-
+  
   vpc_id  = module.vpc.vpc_id
   subnets = module.vpc.public_subnets
 
@@ -223,7 +223,7 @@ module "alb" {
         interval            = 15
         matcher             = "200"
         path                = "/api/hello"
-        port                = "traffic-port"
+        port                = "3000"
         protocol            = "HTTP"
         timeout             = 5
         unhealthy_threshold = 2
