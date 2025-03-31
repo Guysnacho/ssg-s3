@@ -73,20 +73,13 @@ module "ecs_service" {
       essential = true
       image     = data.aws_ecr_image.service_image.image_uri
 
-      environment = [
-        {
-          "name" : "PORT",
-          "value" : 3000
-        }
-      ]
-
       port_mappings = [
         {
           name          = local.container_name
           containerPort = local.container_port
-          protocol      = "tcp"
           # hostport is dynamic in fargate ig
-          # hostPort      = local.container_port
+          hostPort      = local.container_port
+          protocol      = "tcp"
         }
       ]
 
@@ -137,9 +130,10 @@ module "ecs_service" {
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = 3000
+      from_port                = 0
       to_port                  = 3000
       protocol                 = "tcp"
+      name                     = "Ingress_3000"
       description              = "Allow ALB to talk to ECS on port 3000"
       source_security_group_id = module.alb.security_group_id
     }
@@ -175,7 +169,7 @@ module "alb" {
   name = local.name
 
   load_balancer_type = "application"
-  
+
   vpc_id  = module.vpc.vpc_id
   subnets = module.vpc.public_subnets
 
@@ -183,18 +177,20 @@ module "alb" {
   enable_deletion_protection = false
 
   # Security Group
+  #  Thanks to cloudonaut - https://cloudonaut.io/cloudfront-prefix-list-security-group/
   security_group_ingress_rules = {
     all_http = {
-      from_port   = 80
-      to_port     = 80
+      name        = "all_http"
+      from_port   = 0
+      to_port     = 3000
       ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
+      cidr_ipv4   = "0.0.0.0/0" //module.vpc.vpc_cidr_block
     }
   }
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = "0.0.0.0/0"
+      cidr_ipv4   = "0.0.0.0/0" //module.vpc.vpc_cidr_block
     }
   }
 
@@ -212,7 +208,7 @@ module "alb" {
   target_groups = {
     ex_ecs = {
       backend_protocol                  = "HTTP"
-      backend_port                      = 3000
+      backend_port                      = 80
       target_type                       = "ip"
       deregistration_delay              = 5
       load_balancing_cross_zone_enabled = true
@@ -223,12 +219,12 @@ module "alb" {
         interval            = 15
         matcher             = "200"
         path                = "/api/hello"
-        port                = "3000"
+        port                = "traffic-port"
         protocol            = "HTTP"
         timeout             = 5
         unhealthy_threshold = 2
       }
-
+      protocol_version = "HTTP1"
       # There's nothing to attach here in this definition. Instead,
       # ECS will attach the IPs of the tasks to this target group
       create_attachment = false
