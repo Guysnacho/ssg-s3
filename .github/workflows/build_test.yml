@@ -33,9 +33,9 @@ jobs:
           cd terraform
           terraform apply -var "bucket-name=${{ secrets.S3_BUCKET }}" -var "db-name=${{ secrets.DB_NAME }}" -var "db-username=${{ secrets.DB_USER }}" -auto-approve
         id: apply
-      - run: echo ${{ steps.apply.outputs.stdout }}
-      - run: echo ${{ steps.apply.outputs.stderr }}
-      - run: echo ${{ steps.apply.outputs.exitcode }}
+      - run: echo "${{ steps.apply.outputs.stdout }}"
+      - run: echo "${{ steps.apply.outputs.stderr }}"
+      - run: echo "${{ steps.apply.outputs.exitcode }}"
       - name: Fetch API GW
         id: APIGW
         run: |
