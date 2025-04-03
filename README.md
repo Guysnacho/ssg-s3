@@ -15,6 +15,7 @@ This repo is to help me actually build this AWS course. ~Shouldn't be too hard~ 
   - Uploads our Docker Image to the run context
   - Updates an SSM parameter's value to this artifact's URL
     - Important note - by default, an artifact upload will only live for 90 days. Keep this in mind if you want to roll changes back to a given date past that.
+- Fixtures - Useful references and SQL scripts for seeding your database.
 
 ### Local Setup
 
