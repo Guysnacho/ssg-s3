@@ -25,4 +25,3 @@ variable "db-username" {
 #   default     = "top_secret"
 #   sensitive   = true
 # }
-# terraform apply -var "bucket-name=black-belt-init-ssg-s3" -var "db-name=storefront" -var "db-username=ogg" --auto-approve --refresh-only
