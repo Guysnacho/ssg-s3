@@ -130,18 +130,24 @@ module "ecs_service" {
     service = {
       target_group_arn = module.alb.target_groups["ex_ecs"].arn
       container_name   = local.container_name
-      container_port   = local.container_port
+      container_port   = 3000
     }
   }
 
   subnet_ids = module.vpc.private_subnets
   security_group_rules = {
-    alb_ingress_3000 = {
+    alb_ingress_0 = {
       type                     = "ingress"
       from_port                = 0
-      # from_port                = 3000
       to_port                  = 0
-      # to_port                  = 3000
+      protocol                 = "tcp"
+      description              = "Allow ALB to talk to ECS on port 3000"
+      source_security_group_id = module.alb.security_group_id
+    }
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = 3000
+      to_port                  = 3000
       protocol                 = "tcp"
       description              = "Allow ALB to talk to ECS on port 3000"
       source_security_group_id = module.alb.security_group_id
